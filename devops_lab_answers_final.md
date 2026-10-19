@@ -6,6 +6,8 @@
 
 ## Lab 1 — CI/CD workflow
 
+**Question:** Given a sample application scenario, draw a simple CI/CD workflow from code commit to deployment. Label the build, test, package, deploy, and monitoring stages.
+
 ```text
 Developer
    |
@@ -34,6 +36,8 @@ Build --> Automated tests --> Security checks
 
 ## Lab 2 — Monolith vs Microservices
 
+**Question:** Compare a monolithic application and a microservices application for a provided online shopping use case. Identify two operational benefits and two challenges of microservices.
+
 | Area | Monolithic application | Microservices |
 |---|---|---|
 | Deployment | Deployed as one unit | Each service deployed independently |
@@ -43,6 +47,8 @@ Build --> Automated tests --> Security checks
 | Challenge | One process can become a bottleneck | Service discovery, API compatibility, data consistency |
 
 ## Lab 3 — One-page DevOps roadmap
+
+**Question:** Create a one-page DevOps roadmap for a small team that currently deploys manually. Prioritize version control, automated tests, containerization, CI/CD, and monitoring, with a short reason for each.
 
 ```markdown
 # DevOps Roadmap
@@ -60,6 +66,8 @@ Build --> Automated tests --> Security checks
 
 ## Lab 1 — Directories and file operations
 
+**Question:** Create a project directory with app, logs, and config subdirectories. Create sample files and demonstrate listing, copying, moving, searching, and deleting files.
+
 ```bash
 mkdir -p project/{app,logs,config}
 touch project/app/main.py project/logs/app.log project/config/app.conf
@@ -74,6 +82,8 @@ rm project/config/backup.conf
 
 ## Lab 2 — User, group, permissions
 
+**Question:** Create a user named examuser and a group named devops. Add the user to the group and configure suitable ownership and permissions on a project directory.
+
 ```bash
 sudo groupadd devops
 sudo useradd -m examuser
@@ -87,6 +97,8 @@ ls -ld /srv/devops-project
 
 ## Lab 3 — Inspect a service and diagnose a problem
 
+**Question:** Check the status of a Linux service, inspect its logs, and document the commands used to diagnose a simulated service problem.
+
 ```bash
 systemctl status nginx --no-pager
 sudo journalctl -u nginx --since "30 minutes ago" --no-pager
@@ -99,6 +111,8 @@ sudo ss -lntp
 # Session 3 — Shell Scripting
 
 ## Lab 1 — Count files and subdirectories
+
+**Question:** Write a shell script that accepts a directory path as an argument and displays the number of files and subdirectories. Handle a missing or invalid argument.
 
 ```bash
 cat > count-items.sh <<'EOF'
@@ -119,6 +133,8 @@ chmod +x count-items.sh
 ```
 
 ## Lab 2 — Check file permissions
+
+**Question:** Write a script that checks whether a supplied file exists and is readable, writable, and executable. Print a clear result for each check.
 
 ```bash
 cat > check-file.sh <<'EOF'
@@ -141,6 +157,8 @@ chmod +x check-file.sh
 ```
 
 ## Lab 3 — System-health script
+
+**Question:** Write a reusable system-health script using variables, conditions, loops, and functions. Report disk usage, memory, and uptime.
 
 ```bash
 cat > system-health.sh <<'EOF'
@@ -171,6 +189,8 @@ chmod +x system-health.sh
 
 ## Lab 1 — IP, subnet, route, listening ports
 
+**Question:** Use Linux commands to display the machine IP address, subnet information, default route, and listening ports. Include the command and a brief interpretation for each.
+
 ```bash
 # Interface addresses and CIDR prefixes (for example, 192.168.1.20/24)
 ip -br address
@@ -188,6 +208,8 @@ sudo ss -lntup
 Interpretation: `ip -br address` shows assigned IP addresses and subnet prefixes; `ip route` shows the default gateway and connected routes; `ip route get` shows the selected outbound route; `ss -lntup` lists listening ports and, with sufficient permissions, the owning process.
 
 ## Lab 2 — Troubleshoot a web service
+
+**Question:** Use ping, ss, and curl to troubleshoot a web service. Determine whether a simulated failure is caused by reachability, a closed port, or an HTTP response.
 
 ```bash
 # 1. Check basic local IP-stack reachability
@@ -208,6 +230,8 @@ Interpretation:
 
 ## Lab 3 — Resolve a domain, check HTTP/HTTPS
 
+**Question:** Resolve a domain using nslookup or dig, then use curl to verify HTTP/HTTPS connectivity. Record the DNS result and HTTP status.
+
 ```bash
 nslookup example.com
 dig example.com
@@ -222,6 +246,8 @@ Record the DNS answer returned by `nslookup` or `dig` (for example, an `A` or `A
 # Session 5 — Git & GitHub
 
 ## Lab 1 — Repository, three commits, push
+
+**Question:** Create a Git repository for a small application, add a README, make at least three meaningful commits, and push it to GitHub.
 
 ```bash
 mkdir devops-git-lab && cd devops-git-lab
@@ -240,6 +266,8 @@ git push -u origin main
 
 ## Lab 2 — Feature branch and Pull Request
 
+**Question:** Create a feature branch, implement a change, push the branch, and merge it into main through a Pull Request after reviewing the diff.
+
 ```bash
 git switch -c feature/update-readme
 echo "Feature branch example" >> README.md
@@ -254,6 +282,8 @@ git log --oneline --graph --decorate -8
 ```
 
 ## Lab 3 — Merge conflict
+
+**Question:** Create a merge conflict by editing the same line on two branches. Resolve it, commit the resolution, and verify the final history.
 
 ```bash
 git switch main
@@ -282,6 +312,8 @@ git log --oneline --graph --decorate -8
 
 ## Lab 1 — Run Nginx
 
+**Question:** Run an Nginx container with host port 8080 mapped to container port 80. Verify access using curl and inspect the container logs.
+
 ```bash
 docker run -d --name nginx-lab -p 8080:80 nginx
 curl http://localhost:8080
@@ -289,6 +321,8 @@ docker logs nginx-lab
 ```
 
 ## Lab 2 — Build image for HTML page
+
+**Question:** Create a Dockerfile for a simple HTML page using FROM, WORKDIR, COPY, and CMD. Build the image, run it, and verify the page.
 
 ```bash
 mkdir -p docker-lab && cd docker-lab
@@ -305,6 +339,8 @@ curl http://localhost:8081
 ```
 
 ## Lab 3 — `.dockerignore` and environment variable
+
+**Question:** Add a .dockerignore file and an environment variable to the Docker build. Rebuild and run the image, then explain the purpose of each added instruction.
 
 ```bash
 cd docker-lab
@@ -338,6 +374,8 @@ Explanation: `.dockerignore` excludes `secret.txt` and `temporary/` from the bui
 
 ## Lab 1 — Network and name-based communication
 
+**Question:** Create a custom Docker network and run two containers on it. Demonstrate name-based communication between the containers.
+
 ```bash
 docker network create lab-net
 docker run -d --name web-lab --network lab-net nginx
@@ -347,6 +385,8 @@ docker run --rm --network lab-net busybox:1.36 wget -qO- http://web-lab
 ```
 
 ## Lab 2 — Named volume persistence
+
+**Question:** Run a database container with a named volume, create sample data, remove and recreate the container, and verify that the data persists.
 
 ```bash
 docker volume create db-lab-data
@@ -371,6 +411,8 @@ docker exec db-lab psql -U postgres -d labdb -c "SELECT * FROM notes;"
 ```
 
 ## Lab 3 — Compose web app and database
+
+**Question:** Write a compose.yaml file for a web application and database. Start the stack, verify service communication, inspect logs, and shut it down.
 
 This example starts a web server and a database on the same Compose network. Nginx itself does **not** connect to PostgreSQL. The `psql` check runs inside the running `db` container and verifies a local database query; it does not test database access from a separate client container or application-level web-to-database integration.
 
@@ -420,6 +462,8 @@ Compose places services on a shared network, so an application container can rea
 
 ## Lab 1 — Inspect cluster resources
 
+**Question:** Connect to a Kubernetes cluster and inspect nodes, namespaces, and cluster resources using kubectl. Record what each command shows.
+
 ```bash
 kubectl cluster-info
 kubectl get nodes -o wide
@@ -438,6 +482,8 @@ kubectl get services -A
 
 ## Lab 2 — Deploy and inspect a web application
 
+**Question:** Deploy a simple web application and inspect it using kubectl get, describe, and logs. Confirm that the workload reaches a healthy state.
+
 ```bash
 kubectl create deployment web-lab --image=nginx
 kubectl rollout status deployment/web-lab
@@ -451,6 +497,8 @@ kubectl get service web-lab
 ```
 
 ## Lab 3 — Kubernetes architecture roles
+
+**Question:** Identify the role of the API Server, Scheduler, Controller Manager, etcd, kubelet, and kubectl in a short cluster architecture diagram.
 
 ```text
 kubectl (client)
@@ -473,6 +521,8 @@ Worker node:
 
 ## Lab 1 — Nginx Pod
 
+**Question:** Create a Pod running Nginx and inspect its status, labels, IP address, and logs using kubectl.
+
 ```bash
 kubectl run nginx-pod --image=nginx --labels="app=nginx-lab"
 kubectl wait --for=condition=Ready pod/nginx-pod --timeout=120s
@@ -482,6 +532,8 @@ kubectl logs nginx-pod
 ```
 
 ## Lab 2 — Scale Deployment 2 → 5 → 2
+
+**Question:** Create a Deployment with two replicas, scale it to five, and then scale it back to two. Verify the replica count at each step.
 
 ```bash
 kubectl create deployment scale-lab --image=nginx --replicas=2
@@ -496,6 +548,8 @@ kubectl get deployment scale-lab
 ```
 
 ## Lab 3 — Rolling update and rollback
+
+**Question:** Deploy version 1 of an application, perform a rolling update to version 2, verify the rollout, and roll back to version 1.
 
 ```bash
 kubectl create deployment rollout-lab --image=nginx:1.25
@@ -514,6 +568,8 @@ kubectl get deployment rollout-lab -o wide
 
 ## Lab 1 — ClusterIP Service and endpoints
 
+**Question:** Deploy an application with multiple replicas and create a ClusterIP Service that selects the correct Pods. Verify its endpoints.
+
 ```bash
 kubectl create deployment svc-lab --image=nginx --replicas=3
 kubectl expose deployment svc-lab --name=svc-lab --port=80 --target-port=80 --type=ClusterIP
@@ -527,6 +583,8 @@ kubectl describe service svc-lab
 
 ## Lab 2 — NodePort Service
 
+**Question:** Create a NodePort Service and demonstrate access to the application through the exposed node port.
+
 ```bash
 kubectl create deployment nodeport-lab --image=nginx
 kubectl expose deployment nodeport-lab --type=NodePort --port=80 --target-port=80
@@ -536,6 +594,8 @@ minikube service nodeport-lab --url
 ```
 
 ## Lab 3 — Service port differs from targetPort
+
+**Question:** Configure a Service whose port and targetPort differ. Verify that traffic reaches the intended container port.
 
 ```bash
 kubectl create deployment port-lab --image=nginx
@@ -552,6 +612,8 @@ kubectl run curl-test --image=curlimages/curl:8.10.1 --restart=Never --rm -it --
 # Session 12 — Ingress, ConfigMaps & Secrets
 
 ## Lab 1 — Ingress
+
+**Question:** Deploy an application and configure an Ingress rule that routes requests by host or URL path to the correct Service.
 
 ```bash
 minikube addons enable ingress
@@ -598,6 +660,8 @@ curl -H 'Host: web.local' http://INGRESS_IP/
 
 ## Lab 2 — ConfigMap environment variables
 
+**Question:** Create a ConfigMap and inject its values into a Deployment as environment variables. Verify the values inside a running Pod.
+
 ```bash
 kubectl create configmap app-config \
   --from-literal=APP_ENV=production \
@@ -640,6 +704,8 @@ kubectl exec "$POD_NAME" -- printenv LOG_LEVEL
 
 ## Lab 3 — Secret consumed by a Pod
 
+**Question:** Create a Kubernetes Secret for a sample credential and consume it from a Pod without hard-coding the credential in the Deployment manifest.
+
 ```bash
 read -s -p "Enter lab password: " LAB_PASSWORD; echo
 kubectl create secret generic db-credentials --from-literal=password="$LAB_PASSWORD"
@@ -677,6 +743,8 @@ kubectl logs secret-pod
 # Session 13 — Storage, HPA & Probes
 
 ## Lab 1 — PVC persistence
+
+**Question:** Create a PersistentVolumeClaim, mount it into a Pod, write a file, recreate the Pod, and verify that the file remains.
 
 `pvc-lab.yaml`:
 
@@ -721,6 +789,8 @@ kubectl exec storage-lab -- cat /data/test.txt
 ```
 
 ## Lab 2 — Readiness and liveness probes
+
+**Question:** Configure readiness and liveness probes for a sample application. Demonstrate how Kubernetes reacts when the application is not ready or becomes unhealthy.
 
 `probes.yaml`:
 
@@ -785,6 +855,8 @@ Readiness removes a Pod from Service endpoints while it is not ready; liveness f
 
 ## Lab 3 — HPA
 
+**Question:** Configure an HPA for a Deployment with CPU requests defined. Generate load and observe replica scaling; document any cluster prerequisites.
+
 Prerequisites: the cluster must have a working Metrics Server/metrics API, and the Deployment must define CPU requests for its containers. On Minikube, enable Metrics Server if it is not already available (`minikube addons enable metrics-server`).
 
 ```bash
@@ -816,6 +888,8 @@ kubectl delete pod load-generator
 
 ## Lab 1 — ImagePullBackOff
 
+**Question:** Deploy a workload with an invalid image. Diagnose ImagePullBackOff using kubectl get, describe, and events, then correct the image.
+
 ```bash
 kubectl create deployment bad-image --image=nginx:tag-that-does-not-exist
 kubectl get pods
@@ -827,6 +901,8 @@ kubectl get pods
 ```
 
 ## Lab 2 — CrashLoopBackOff
+
+**Question:** Diagnose a CrashLoopBackOff workload using logs and describe. Identify the root cause, fix the configuration, and verify recovery.
 
 ```bash
 kubectl create deployment crash-lab --image=busybox:1.36 -- /bin/sh -c 'exit 1'
@@ -840,6 +916,8 @@ kubectl get pods
 ```
 
 ## Lab 3 — Incorrect Service selector
+
+**Question:** Create a Service with an incorrect selector. Use labels, selectors, endpoints, and Service configuration to identify and fix the issue.
 
 ```bash
 kubectl create deployment selector-lab --image=nginx --replicas=2
@@ -859,6 +937,8 @@ kubectl describe service selector-svc
 
 ## Lab 1 — Create a chart
 
+**Question:** Create a Helm chart for a simple web application. Explain the purpose of Chart.yaml, values.yaml, and the templates directory.
+
 ```bash
 helm create web-chart
 find web-chart -maxdepth 2 -type f
@@ -871,6 +951,8 @@ cat web-chart/values.yaml
 - `templates/` contains Kubernetes manifests rendered using the chart templates and values. `helm template web-demo web-chart` renders these manifests locally without installing the release.
 
 ## Lab 2 — Image, replicas, Service port
+
+**Question:** Deploy the chart with configurable image, replica count, and Service port values. Verify the rendered and installed Kubernetes resources.
 
 `web-chart/values.yaml` (relevant values):
 
@@ -898,6 +980,8 @@ kubectl get deployments,services,pods
 
 ## Lab 3 — Upgrade, history, rollback
 
+**Question:** Upgrade a Helm release, inspect its revision history, and roll back to the previous revision. Verify the final release status.
+
 ```bash
 helm upgrade web-demo web-chart --set replicaCount=3
 helm history web-demo
@@ -913,6 +997,8 @@ kubectl get deployment
 # Session 16 — GitHub Actions
 
 ## Lab 1 — Workflow on push
+
+**Question:** Create a GitHub Actions workflow triggered on push that checks out the repository, installs dependencies, and builds the application.
 
 Example for a Node.js application that has `package.json` and a lockfile. Save as `.github/workflows/build.yml`.
 
@@ -944,6 +1030,8 @@ jobs:
 
 ## Lab 2 — Automated tests (pass/fail)
 
+**Question:** Add an automated test step. Demonstrate that a failing test causes the workflow to fail and that a corrected test passes.
+
 Add these steps to a Python project's workflow job (or use a separate Python job). A non-zero exit code from `pytest` makes the job and workflow fail.
 
 ```yaml
@@ -963,6 +1051,8 @@ Add these steps to a Python project's workflow job (or use a separate Python job
 To demonstrate the gate, run the workflow once with a deliberately failing assertion and observe the failed test step. Correct the assertion, push the fix, and confirm the next run passes. Do not leave a deliberately failing test in the final branch.
 
 ## Lab 3 — Upload build artifact
+
+**Question:** Extend the workflow to upload a build artifact and make it downloadable from the Actions run.
 
 Add these steps after the build step in the same workflow job. Replace `dist/` with the real build output directory if the project uses a different one.
 
@@ -987,6 +1077,8 @@ Open the completed Actions run and download `application-build` from the run's *
 # Session 17 — DevSecOps
 
 ## Lab 1 — Build and push image using secrets
+
+**Question:** Create a CI/CD pipeline that builds a Docker image and pushes it to a container registry using repository secrets rather than hard-coded credentials.
 
 ```yaml
 name: Container CI
@@ -1014,6 +1106,8 @@ jobs:
 ```
 
 ## Lab 2 — SAST, dependency scan, secret scan, and gate
+
+**Question:** Add SAST, dependency scanning, and secret scanning to a pipeline. Configure a required security check to block later stages when it fails.
 
 This example is for a JavaScript repository with a lockfile. Each security check runs as a separate job. The `deploy` job depends on all three checks, so it is skipped if any check fails. Configure the corresponding status checks as required in GitHub branch protection/rulesets if merges must also be blocked.
 
@@ -1064,6 +1158,8 @@ jobs:
 ```
 
 ## Lab 3 — Scan image and gate deployment
+
+**Question:** Add container image vulnerability scanning and implement a gate that prevents deployment when the agreed severity threshold is exceeded.
 
 Place these steps in a workflow after the image has been built and pushed. The scan exits with code `1` when it finds a fixable CRITICAL or HIGH vulnerability, causing the job to fail. The deployment job depends on the scan and therefore will not run after a failed scan.
 
@@ -1118,6 +1214,8 @@ Replace the image placeholders and deployment step with the project's actual reg
 
 ## Lab 1 — Provider and resource
 
+**Question:** Write Terraform configuration that declares a provider and creates a small supported resource. Run fmt, init, validate, and plan, then explain the output.
+
 `main.tf`:
 
 ```hcl
@@ -1149,6 +1247,8 @@ terraform plan
 `fmt` formats the configuration; `init` downloads the provider and initializes the working directory; `validate` checks configuration syntax and internal consistency; `plan` previews proposed changes without applying them. The plan may show that Terraform intends to create an S3 bucket. A successful plan does not create the bucket.
 
 ## Lab 2 — Variables, tfvars, outputs
+
+**Question:** Use variables and outputs in a Terraform configuration. Pass a variable through a .tfvars file and print a useful output after apply.
 
 `variables.tf`:
 
@@ -1209,6 +1309,8 @@ terraform output bucket_name
 
 ## Lab 3 — Resource change and state
 
+**Question:** Modify a resource configuration, inspect the plan before applying, and explain how Terraform state maps configuration to real infrastructure. Do not commit secrets or state files.
+
 ```hcl
 resource "aws_s3_bucket" "lab" {
   bucket_prefix = var.bucket_prefix
@@ -1235,6 +1337,8 @@ Terraform state records the mapping between resource addresses in configuration 
 
 ## Lab 1 — Cloud network design
 
+**Question:** Design a cloud network with a VPC/VNet, public and private subnets, route tables, and security rules. Submit a diagram and explain the traffic flow.
+
 ```text
 Internet
    |
@@ -1259,6 +1363,8 @@ Private data subnet: 10.0.3.0/24
 Traffic flow: internet clients reach the public load balancer through the Internet Gateway. The load balancer forwards allowed application traffic to the private app tier. App instances use the NAT Gateway for outbound internet access such as updates; the NAT Gateway does not allow unsolicited inbound connections to the private instances. The database accepts traffic only from the app tier on its required database port. Security groups should allow only those required flows, and administrative access should be restricted to an approved private path or client CIDR.
 
 ## Lab 2 — Provision network and compute
+
+**Question:** Use Terraform to provision a small cloud network and one low-cost compute resource in a sandbox account. Run plan before apply and destroy the lab resources afterward.
 
 Example for an AWS sandbox. This creates a VPC, a public subnet, an Internet Gateway, a public route, a security group that permits HTTP only, and one small EC2 instance. It intentionally does not open SSH to the internet. The AMI is selected dynamically for Amazon Linux 2023 in `ap-south-1`.
 
@@ -1391,6 +1497,8 @@ This is a lab example, not a production network. Confirm sandbox permissions and
 
 ## Lab 3 — Restrict firewall access
 
+**Question:** Configure a security group/firewall rule that permits only the required application port. Demonstrate that SSH/admin access is not open to the entire internet.
+
 This is a complete standalone security-group example. Supply the actual VPC ID and the client CIDR that should be allowed to reach the application. Do not use `0.0.0.0/0` for SSH or administrative access.
 
 `main.tf`:
@@ -1468,6 +1576,8 @@ No SSH ingress rule is defined, so this configuration does not expose TCP port 2
 
 ## Lab 1 — Metrics and Prometheus
 
+**Question:** Expose application metrics and configure Prometheus to scrape them. Verify the target is healthy and identify at least two metrics.
+
 The application must expose a Prometheus-format `/metrics` endpoint before Prometheus can scrape it. Replace the host and port with the actual address reachable **from the Prometheus process/container**.
 
 ```bash
@@ -1488,6 +1598,8 @@ Validate/reload Prometheus using the method supported by your environment, then 
 
 ## Lab 2 — Grafana dashboard
 
+**Question:** Create a Grafana dashboard with panels for request rate, errors, and latency, or use the metrics available in the supplied environment. Explain what each panel indicates.
+
 Create three panels in Grafana, select the Prometheus data source, paste the matching query into each panel, and choose a time-series visualization. Metric names and labels must match those actually exported by your application; adjust them if necessary.
 
 ```promql
@@ -1507,6 +1619,8 @@ histogram_quantile(
 Interpretation: request rate shows traffic volume; the 5xx panel shows the rate of server-side errors; p95 latency shows the response time below which 95% of observed requests fall. If your application does not export these metric names/labels, use the equivalent metrics that are available in the supplied environment. Save the dashboard after creating the panels.
 
 ## Lab 3 — GitOps with Argo CD
+
+**Question:** Configure a basic GitOps deployment using Argo CD or a supplied GitOps environment. Change the desired replica count in Git and verify reconciliation in the cluster.
 
 Keep `deployment.yaml` in the repository path Argo CD will watch:
 
