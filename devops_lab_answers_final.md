@@ -1678,14 +1678,794 @@ kubectl get deployment gitops-nginx
 kubectl get pods -l app=gitops-nginx
 ```
 
-With automated sync enabled, Argo CD should reconcile the cluster to the Git-declared count. `argocd app sync APP_NAME` is an optional manual sync, not necessary to demonstrate automated GitOps. The repository URL, app name, and repo path must be replaced with the real values.
+# DevOps Open-Book Exam — Command Playbook
 
+**Purpose:** Scenario → identify the task → copy the matching commands/configuration → replace placeholders → verify. Written for a beginner using a browser-based Linux terminal.
+
+**Scope:** Linux fundamentals, networking, Git/GitHub, Docker, Docker networking/volumes/Compose, Kubernetes, Services, Ingress, ConfigMaps/Secrets, storage/probes/HPA, troubleshooting, Helm, GitHub Actions, DevSecOps, Terraform/cloud, monitoring and GitOps. Shell scripting intentionally omitted.
+
+> **Before running commands:** Read the question for exact names, paths, ports, replicas, image names and permission values. Replace `<PLACEHOLDERS>` with the values from the question; do not type the angle brackets. Do not run destructive commands (`rm -rf`, `terraform destroy`, `kubectl delete`, `docker volume rm`) unless the task specifically requires it. Cloud commands may create billable resources.
 
 ---
 
-## Verification notes
+## 0. First 30 seconds in an unfamiliar terminal
 
-- Replace every placeholder such as `YOUR_GITHUB_USERNAME`, `YOUR_IMAGE`, `APP_NAME`, `APPLICATION_HOST`, `PORT`, `INGRESS_IP`, `vpc-...`, and example CIDRs with values from your own environment before running commands.
-- These labs assume the relevant tools are installed and authenticated. Kubernetes examples require a working cluster; Ingress/HPA labs also require their respective controllers/metrics components.
-- Terraform `apply` and cloud resources can incur charges. Review `terraform plan` before applying, and destroy disposable lab infrastructure when finished.
-- Never commit credentials, Terraform state files, or real secrets to Git. The PostgreSQL password in the Compose example is a lab-only placeholder and should not be used in production.
+**Use when:** You don't know what tools or files the exam environment provides.
+
+```bash
+pwd                    # current directory
+ls -la                 # files, including hidden files
+whoami                 # current user
+id                     # user and groups
+uname -a               # OS/kernel information
+command -v git docker kubectl helm terraform curl
+```
+
+If a command says `command not found`, the tool may not be installed. If permission is denied, inspect the path and permissions before trying `sudo`. Some exam terminals do not provide sudo, internet access, Docker, Kubernetes, or cloud credentials.
+
+**Useful file commands**
+```bash
+cat file.txt            # print file
+less file.txt           # read long file; press q to quit
+head -n 20 file.txt     # first 20 lines
+tail -n 50 file.txt     # last 50 lines
+mkdir -p folder         # create directory, including parents
+cd folder               # change directory
+touch file.txt          # create empty file if absent
+cp source destination   # copy
+mv old new              # move/rename
+```
+
+**Create/edit a file:** `nano filename` if available; save with `Ctrl+O`, Enter, exit with `Ctrl+X`. Alternatively use a heredoc:
+```bash
+cat > filename <<'EOF'
+put file contents here
+EOF
+```
+The `EOF` markers must be on their own lines. This overwrites the named file.
+
+---
+
+## 1. Linux — ownership and permissions
+
+**Recognize:** “change owner/group”, “restrict access”, “make executable”, “audit permissions”.
+
+```bash
+ls -l <PATH>                       # inspect owner, group and permissions
+stat <PATH>                        # detailed metadata
+sudo chown <USER>:<GROUP> <FILE>   # change owner and group
+sudo chown -R <USER>:<GROUP> <DIR> # recursive: directory and all contents
+chmod 640 <FILE>                   # owner rw, group r, others none
+chmod 600 <FILE>                   # owner read/write only
+chmod 644 <FILE>                   # owner rw, everyone else read
+chmod 755 <DIR_OR_SCRIPT>          # owner full; others read/execute
+chmod +x <SCRIPT>                  # add executable bit
+```
+
+**Permission digits:** `4=read`, `2=write`, `1=execute`; add them: `7=rwx`, `6=rw-`, `5=r-x`, `4=r--`. Three digits mean owner/group/others. For example `640` means owner read-write, group read, others no access.
+
+**Example matching a typical ownership question:**
+```bash
+sudo chown nobody:nogroup /home/user/task_8/audit.log
+sudo chown -R <USER>:<GROUP> /home/user/task_8/confidential/
+ls -l /home/user/task_8/
+ls -l /home/user/task_8/confidential/
+```
+Use the exact requested owner/group. Do not assume the example names apply to every question. `-R` is recursive; only use it when all items inside must change.
+
+**Find files / search text**
+```bash
+find <DIR> -type f -name 'filename'
+find <DIR> -type f -perm 0777
+ grep -Rni 'text' <DIR>         # recursive, line numbers, ignore case
+```
+
+---
+
+## 2. Networking and service checks
+
+**Recognize:** “show IP/default gateway/listening ports”, “test a web service”, “check DNS/HTTP”.
+
+```bash
+ip addr                         # IP addresses and interfaces
+ip route                        # routes and default gateway
+ss -tuln                        # listening TCP/UDP ports
+ping -c 4 <HOST_OR_IP>          # reachability test (may be blocked)
+curl -I http://<HOST>:<PORT>    # HTTP response headers/status
+curl -v http://<HOST>:<PORT>    # verbose connection troubleshooting
+curl -k -I https://<HOST>       # HTTPS test ignoring certificate validation (diagnostic only)
+nslookup <DOMAIN>               # DNS lookup, if installed
+dig <DOMAIN>                   # DNS lookup, if installed
+```
+
+**Interpretation:** DNS failure → check domain/resolver. Connection refused → host reachable but service/port likely not listening. Timeout → routing/firewall/service issue may exist. HTTP `200` usually means success; `301/302` redirect; `403` forbidden; `404` path not found; `5xx` server/upstream error. `ping` failure alone does not prove a service is down because ICMP may be blocked.
+
+---
+
+## 3. Git and GitHub
+
+**Recognize:** create repository, save changes, branch, merge, resolve conflict, sync with remote.
+
+### Create a repo and commit files
+```bash
+git init
+git status
+git add README.md                 # stage one file
+git add .                        # stage all changes in current repo
+git commit -m "Add project README"
+git log --oneline --decorate -5
+```
+If Git asks for identity:
+```bash
+git config user.name "Your Name"
+git config user.email "you@example.com"
+```
+### Clone, remotes, push/pull/fetch
+```bash
+git clone <REPOSITORY_URL>
+cd <REPOSITORY_FOLDER>
+git remote -v
+git fetch origin                 # download remote refs without merging
+git pull origin main             # fetch + integrate remote main
+git push -u origin main          # publish local main and set upstream
+```
+If pushing a new branch, use `git push -u origin <BRANCH>`. A push may require authentication and repository permission.
+
+### Branch and merge
+```bash
+git switch -c feature-name       # create and switch branch
+git add .
+git commit -m "Implement feature"
+git push -u origin feature-name
+git switch main
+git pull origin main
+git merge feature-name
+git status
+```
+A Pull Request is created on GitHub to review/merge a pushed branch; it is not created by `git merge` itself.
+
+### Resolve merge conflict
+```bash
+git status                       # identify conflicted files
+# edit each conflicted file; remove <<<<<<<, =======, >>>>>>> markers
+# keep the correct combined content
+ git add <RESOLVED_FILE>
+git commit -m "Resolve merge conflict"
+git status
+```
+### Undo / ignore safely
+```bash
+git diff                         # unstaged changes
+git diff --staged                # staged changes
+git restore <FILE>               # discard unstaged edits to a tracked file
+ git rm --cached <FILE>          # stop tracking file but keep it locally
+```
+`.gitignore` contains patterns for untracked files/directories Git should ignore. Do not commit passwords, tokens, private keys or `.env` files.
+
+### Fetch upstream (fork workflow)
+```bash
+git remote -v
+git remote add upstream <ORIGINAL_REPOSITORY_URL>   # only if upstream absent
+git fetch upstream
+git switch main
+git merge upstream/main
+git push origin main
+```
+If upstream already exists, skip `remote add`. The default branch may be `master` or another name; check with `git branch -a`.
+
+---
+
+## 4. Docker — images and containers
+
+**Recognize:** build image, run container, map port, inspect logs, execute command inside container.
+
+```bash
+docker --version
+docker ps                         # running containers
+docker ps -a                      # all containers, including stopped
+docker images                     # local images
+docker build -t <IMAGE_NAME>:<TAG> .
+docker run -d --name <NAME> -p 8080:80 <IMAGE_NAME>:<TAG>
+docker logs <CONTAINER>
+docker logs -f <CONTAINER>        # follow logs; Ctrl+C stops following
+docker exec -it <CONTAINER> sh    # shell inside container (bash may not exist)
+docker inspect <CONTAINER>
+docker stop <CONTAINER>
+docker start <CONTAINER>
+docker rm <CONTAINER>             # remove container, not image
+docker rmi <IMAGE_NAME>:<TAG>     # remove image when unused
+```
+`-p 8080:80` means **host port 8080 → container port 80**. `-d` runs in background. If Docker daemon is unavailable, commands may fail even when Docker CLI is installed.
+
+### Minimal Dockerfile for static HTML served by Nginx
+**Recognize:** “create a Docker image for a webpage”. Create `index.html` and `Dockerfile` in the same folder.
+```dockerfile
+FROM nginx:alpine
+COPY index.html /usr/share/nginx/html/index.html
+EXPOSE 80
+```
+Build and run:
+```bash
+docker build -t exam-web:1.0 .
+docker run -d --name exam-web -p 8080:80 exam-web:1.0
+curl -I http://localhost:8080
+docker logs exam-web
+```
+`FROM` chooses base image; `COPY` copies files into image; `EXPOSE` documents the intended container port but does not publish it; `CMD` defines the default process/command. Use `WORKDIR` to set working directory, `RUN` for build-time commands, `ENV` for runtime environment variables.
+
+### Environment variables and build context
+```bash
+docker run -d --name app -e APP_MODE=production -p 8080:80 <IMAGE>
+```
+`.dockerignore` excludes files from the build context, for example:
+```text
+.git
+.env
+node_modules
+*.log
+```
+Do not copy secrets into images; build arguments and image layers are not a safe secret store.
+
+---
+
+## 5. Docker networking, volumes and Compose
+
+### Network and container-to-container communication
+**Recognize:** two containers need to communicate by name.
+```bash
+docker network create exam-net
+docker run -d --name web --network exam-net nginx:alpine
+docker run --rm --network exam-net busybox nslookup web
+```
+User-defined bridge networks provide name-based discovery between attached containers. Network may not be available if Docker isn't running.
+
+### Persist data
+**Recognize:** database/file must survive container recreation.
+```bash
+docker volume create db-data
+docker volume ls
+docker run -d --name db -e POSTGRES_PASSWORD=example -v db-data:/var/lib/postgresql/data postgres:16
+```
+A **named volume** is managed by Docker. A **bind mount** maps a host path into a container: `-v "$PWD/data:/data"`. Removing a container normally leaves a named volume behind; deleting the volume destroys its persisted data.
+
+### Docker Compose
+**Recognize:** run an application with multiple services from `compose.yaml`.
+Create `compose.yaml`:
+```yaml
+services:
+  web:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: change-me
+    volumes:
+      - db-data:/var/lib/postgresql/data
+volumes:
+  db-data:
+```
+Commands:
+```bash
+docker compose config              # validate/print resolved configuration
+docker compose up -d               # create/start services
+docker compose ps
+docker compose logs -f              # view logs; Ctrl+C stops log following
+docker compose down                 # stop/remove containers/network; keeps named volumes
+docker compose down -v              # ALSO deletes named volumes; destructive
+```
+Inside Compose, services reach one another using service names (e.g. database hostname `db`), not `localhost`. Replace sample credentials and never use real secrets in exam notes.
+
+---
+
+## 6. Kubernetes — first commands and basic objects
+
+**Recognize:** “deploy application”, “create Pods/replicas”, “inspect cluster”, “apply YAML”. `kubectl` talks to the Kubernetes API. A **Pod** runs container(s); a **Deployment** maintains replicas and supports rollouts; a **Service** provides stable network access to matching Pods.
+
+```bash
+kubectl version --client
+kubectl get nodes
+kubectl get namespaces
+kubectl get pods -A
+kubectl get all
+kubectl get pods -o wide
+kubectl describe pod <POD>
+kubectl logs <POD>
+kubectl exec -it <POD> -- sh
+kubectl apply -f <FILE.yaml>
+kubectl delete -f <FILE.yaml>       # deletes resources defined in file
+```
+### Deploy an app
+Create `deployment.yaml` (replace image if question gives one):
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+```
+```bash
+kubectl apply -f deployment.yaml
+kubectl get deployments
+kubectl get pods -l app=web
+kubectl rollout status deployment/web
+kubectl scale deployment/web --replicas=3
+```
+Labels in `selector.matchLabels` must match the Pod template labels. If they don't, Deployment configuration is invalid or Service selection fails.
+
+### Quick temporary test
+```bash
+kubectl run test-nginx --image=nginx:alpine --restart=Never
+kubectl get pod test-nginx
+kubectl delete pod test-nginx
+```
+Use YAML when the task needs replicas, labels, probes, volumes or repeatable configuration.
+
+---
+
+## 7. Kubernetes Services — ClusterIP, NodePort, LoadBalancer
+
+**Recognize:** “expose app”, “stable endpoint”, “connect to Pods”, “Service port differs from container port”. A Service selector matches Pod labels. `port` is the Service port; `targetPort` is the port on the Pod/container. `NodePort` exposes a port on nodes; `LoadBalancer` asks a supported environment/cloud for an external load balancer.
+
+Create `service.yaml`:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  type: ClusterIP
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 80
+```
+```bash
+kubectl apply -f service.yaml
+kubectl get svc
+kubectl describe svc web
+kubectl get endpoints web
+kubectl get endpointslices -l kubernetes.io/service-name=web
+```
+**NodePort example:** change `type` to `NodePort`, then optionally add `nodePort: 30080` under the port (if the cluster permits that port). Access is usually `http://<NODE_IP>:30080`; the environment/network must permit access.
+
+**Service types:**
+- `ClusterIP`: internal cluster access (default).
+- `NodePort`: opens a port on each node.
+- `LoadBalancer`: external load balancer when supported.
+- `ExternalName`: DNS alias to an external hostname.
+- Headless: set `clusterIP: None` for direct DNS discovery of endpoints.
+
+**No endpoints?** Check `kubectl get pods --show-labels`, then ensure Service `selector` exactly matches Pod labels and Pods are ready. Service DNS often looks like `web.<namespace>.svc.cluster.local`.
+
+---
+
+## 8. Kubernetes Ingress, ConfigMaps and Secrets
+
+### Ingress
+**Recognize:** route HTTP/HTTPS requests by hostname or URL path to a Service. An Ingress resource requires an Ingress controller to actually implement routing.
+```bash
+kubectl get ingress
+kubectl describe ingress <NAME>
+kubectl get pods -A | grep -i ingress
+```
+Minimal example (replace host and Service name/port):
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+spec:
+  rules:
+    - host: app.example.test
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 80
+```
+Apply with `kubectl apply -f ingress.yaml`. The controller, DNS/hosts mapping and environment-specific routing must also be set up. TLS certificates/keys are commonly stored in a Kubernetes Secret.
+
+### ConfigMap — non-sensitive configuration
+```bash
+kubectl create configmap app-config --from-literal=APP_MODE=production
+kubectl get configmap app-config -o yaml
+```
+Consume as an environment variable in a Pod/Deployment container:
+```yaml
+env:
+  - name: APP_MODE
+    valueFrom:
+      configMapKeyRef:
+        name: app-config
+        key: APP_MODE
+```
+Apply the updated Deployment YAML and verify with `kubectl exec <POD> -- printenv APP_MODE`.
+
+### Secret — sensitive values
+```bash
+kubectl create secret generic app-secret --from-literal=PASSWORD='<SAMPLE_VALUE>'
+kubectl get secrets
+kubectl describe secret app-secret
+```
+Consume in a container:
+```yaml
+env:
+  - name: PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: app-secret
+        key: PASSWORD
+```
+**Important:** Kubernetes Secret data is commonly base64-encoded in YAML; base64 is not encryption. Avoid printing secret values or committing them to Git. Cluster encryption/RBAC controls depend on environment.
+
+---
+
+## 9. Kubernetes storage, probes and autoscaling
+
+### PersistentVolumeClaim (PVC)
+**Recognize:** data must persist when a Pod is deleted/recreated. A PVC requests storage; a PV represents storage; StorageClass may provision storage dynamically. The cluster must support a matching StorageClass/PV.
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+```
+Apply and inspect:
+```bash
+kubectl apply -f pvc.yaml
+kubectl get pvc
+kubectl describe pvc app-data
+```
+Mount inside a Pod spec:
+```yaml
+volumeMounts:
+  - name: data
+    mountPath: /data
+volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: app-data
+```
+If PVC stays `Pending`, check `kubectl describe pvc`, StorageClass availability, requested size and access modes.
+
+### Readiness, liveness, startup probes
+- **Readiness:** should this Pod receive traffic?
+- **Liveness:** should Kubernetes restart the unhealthy container?
+- **Startup:** give a slow-starting app time to initialize before other probes take over.
+
+Example under a container in a Deployment:
+```yaml
+ports:
+  - containerPort: 80
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 5
+  periodSeconds: 5
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 15
+  periodSeconds: 10
+```
+Use endpoints/path/port appropriate to the actual application. Bad probe settings can cause Pods to be removed from traffic or repeatedly restarted.
+
+### HPA — Horizontal Pod Autoscaler
+**Recognize:** automatically change replica count based on CPU/memory or another metric.
+```bash
+kubectl autoscale deployment web --cpu-percent=70 --min=2 --max=6
+kubectl get hpa
+kubectl describe hpa web
+```
+CPU autoscaling generally requires resource requests and a working metrics server. Example container resources:
+```yaml
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+```
+If HPA shows unknown metrics, check metrics-server and CPU requests.
+
+---
+
+## 10. Kubernetes troubleshooting — use this sequence
+
+**Start broad, then inspect details:**
+```bash
+kubectl get pods -A
+kubectl get pods -o wide
+kubectl describe pod <POD>
+kubectl logs <POD>
+kubectl logs <POD> --previous        # previous crashed container, if available
+kubectl get events --sort-by=.metadata.creationTimestamp
+kubectl get deployments,svc,endpoints
+kubectl rollout status deployment/<DEPLOYMENT>
+```
+
+| Symptom | What it usually means | First checks |
+|---|---|---|
+| `Pending` | not scheduled or volume/resource problem | `describe pod`; events; PVC; node resources |
+| `ImagePullBackOff` | image/tag/registry credentials or network problem | `describe pod`; verify image name/tag and pull access |
+| `CrashLoopBackOff` | container repeatedly exits | `logs`; `logs --previous`; `describe pod`; env/config |
+| `Running` but app unreachable | Service/port/selector/Ingress/network issue | `get svc`; `describe svc`; endpoints; container port; Ingress/controller |
+| no Service endpoints | selector doesn't match ready Pods, or no ready Pods | compare `kubectl get pods --show-labels` with Service selector |
+| `CreateContainerConfigError` | missing ConfigMap/Secret/key or bad volume/config | `describe pod`; inspect referenced resource names/keys |
+| PVC `Pending` | storage not bound/provisioned | `describe pvc`; `get storageclass` |
+
+**After fixing:** `kubectl get pods`, `kubectl rollout status deployment/<NAME>`, inspect Service endpoints and test the app. Do not just delete the Pod without understanding the cause; a Deployment may recreate it with the same bad configuration.
+
+---
+
+## 11. Helm — Kubernetes package manager
+
+**Recognize:** install/update an app using a chart, customize values, inspect a release. A chart is a package of Kubernetes templates; `values.yaml` supplies configuration.
+
+```bash
+helm version
+helm repo add <REPO_NAME> <REPO_URL>
+helm repo update
+helm search repo <KEYWORD>
+helm install <RELEASE> <CHART> -n <NAMESPACE> --create-namespace
+helm list -A
+helm status <RELEASE> -n <NAMESPACE>
+helm get values <RELEASE> -n <NAMESPACE>
+helm upgrade <RELEASE> <CHART> -n <NAMESPACE> -f values.yaml
+helm history <RELEASE> -n <NAMESPACE>
+helm rollback <RELEASE> <REVISION> -n <NAMESPACE>
+helm uninstall <RELEASE> -n <NAMESPACE>
+```
+For a local chart folder, use `helm install <RELEASE> ./<CHART_DIR> -n <NAMESPACE> --create-namespace`. Inspect before install/upgrade:
+```bash
+helm lint ./<CHART_DIR>
+helm template <RELEASE> ./<CHART_DIR> -f values.yaml
+```
+A chart commonly contains `Chart.yaml`, `values.yaml`, and `templates/`. If a chart/repository isn't present, install/add it only if the environment allows network access.
+
+---
+
+## 12. GitHub Actions — CI/CD pipeline
+
+**Recognize:** run tests/build/security checks automatically on push or pull request. GitHub Actions workflows are YAML files under `.github/workflows/`.
+
+Create `.github/workflows/ci.yml` for a Python project:
+```yaml
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -r requirements.txt
+      - run: pytest -q
+```
+If the repository has no `requirements.txt` or tests, adjust those commands to match its actual language/project. Commit and push the workflow; GitHub runs it on the configured events. View the result in the repository's **Actions** tab.
+
+**Core terms:** CI = automatically build/test changes; CD = deliver/deploy changes; workflow = YAML automation; event/trigger = push, pull request, schedule, etc.; job = runs on a runner; step = command/action within a job; artifact = saved output; secret = protected repository/org value accessed via `${{ secrets.NAME }}`. Never print secrets.
+
+---
+
+## 13. DevSecOps and image scanning
+
+**Recognize:** scan source code, dependencies, containers or infrastructure for vulnerabilities before release.
+
+```bash
+# Trivy examples, if installed:
+trivy fs .                         # scan project/filesystem
+trivy image <IMAGE>:<TAG>           # scan container image
+trivy config .                      # scan IaC/configuration
+```
+If a CI task asks for a Trivy step, example:
+```yaml
+- name: Scan filesystem
+  uses: aquasecurity/trivy-action@master
+  with:
+    scan-type: fs
+    scan-ref: .
+    severity: HIGH,CRITICAL
+    exit-code: '1'
+```
+The `exit-code: '1'` setting can fail the workflow when findings meet the configured criteria. For production, pin actions to a trusted version/commit and follow the course's requested version. SAST examines source code; dependency scanning checks libraries; image scanning checks packages in container images; secret scanning detects exposed credentials. A scan is not a guarantee that software is secure.
+
+---
+
+## 14. Terraform / Infrastructure as Code
+
+**Recognize:** define cloud infrastructure in `.tf` files, preview changes, create/update resources, inspect state. `plan` previews; `apply` changes real infrastructure; `destroy` deletes managed infrastructure.
+
+```bash
+terraform version
+terraform init                  # install providers/modules and initialize
+terraform fmt
+terraform validate
+terraform plan
+terraform apply                 # review plan and confirm when prompted
+terraform output
+terraform state list
+terraform show
+```
+For a task that explicitly requires automatic approval, `terraform apply -auto-approve` skips the confirmation; use only when instructed. `terraform destroy` is destructive and can delete real resources.
+
+### Minimal AWS S3 example
+Create `main.tf` (requires valid AWS credentials and permissions; may incur costs depending on resources):
+```hcl
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+provider "aws" {
+  region = "ap-south-1"
+}
+resource "aws_s3_bucket" "demo" {
+  bucket_prefix = "devops-exam-demo-"
+}
+```
+Then:
+```bash
+terraform init
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+```
+Use the region specified by the question. Provider versions can differ from course examples; keep the requested version if one is specified. If the exam is a written/simulated terminal without an AWS account, commands may be expected to demonstrate workflow but real `apply` will fail without credentials.
+
+**Common errors:**
+- `terraform init` required → run `terraform init` in the directory containing `.tf` files.
+- Invalid/missing credentials → check the environment's configured AWS identity; do not paste credentials into source code.
+- Resource already exists/state mismatch → inspect state and actual resource before importing or changing it.
+- Do not manually delete managed cloud resources unless the task tells you to; Terraform state may become inconsistent.
+
+---
+
+## 15. Cloud fundamentals — quick scenario map
+
+- **VPC:** isolated virtual network in a cloud.
+- **Subnet:** range of IP addresses inside a VPC; commonly separated by availability zone/public-private design.
+- **Route table:** controls where subnet traffic goes.
+- **Internet Gateway:** enables eligible VPC resources to route to/from the internet when routes/security allow.
+- **NAT Gateway:** lets private subnet resources initiate outbound internet access without accepting unsolicited inbound internet connections.
+- **Security Group:** stateful virtual firewall attached to resources; allow rules control traffic.
+- **IAM:** identities/roles/policies and permissions; apply least privilege.
+- **S3:** object storage.
+- **EKS:** managed Kubernetes control plane on AWS.
+- **CloudWatch:** AWS metrics/logs/alarms.
+
+If asked to create a VPC/EKS with Terraform, identify required resources from the prompt and use the provided starter files if available. Full production VPC/EKS configurations are lengthy and require account permissions, networking decisions and costs; don't blindly apply generic infrastructure in a real account.
+
+---
+
+## 16. Monitoring and observability — Prometheus / Grafana
+
+**Recognize:** collect metrics, visualize them, investigate health/performance.
+
+- **Metrics:** numeric measurements over time (CPU, memory, request count, latency).
+- **Logs:** event records/messages.
+- **Traces:** follow a request across services.
+- **Prometheus:** scrapes/stores time-series metrics and evaluates alert rules.
+- **Grafana:** dashboards/visualization; commonly queries Prometheus as a data source.
+- **Alerting:** notify when a metric/rule crosses a condition.
+
+### Docker Compose checks
+```bash
+docker compose ps
+docker compose logs prometheus
+docker compose logs grafana
+curl -I http://localhost:9090
+curl -I http://localhost:3000
+```
+Prometheus commonly uses port `9090`; Grafana commonly uses `3000`, but check the provided Compose file for actual mappings. A running container does not guarantee a correctly configured dashboard or target.
+
+### Kubernetes monitoring checks
+```bash
+kubectl get pods -A
+kubectl get svc -A
+kubectl logs <PROMETHEUS_POD> -n <NAMESPACE>
+kubectl logs <GRAFANA_POD> -n <NAMESPACE>
+```
+Use actual pod/service names from `kubectl get`. If a target is down, check service discovery, labels/selectors, target endpoint, network access and scrape configuration.
+
+---
+
+## 17. GitOps and Argo CD
+
+**Recognize:** Git repository is the source of truth for desired deployment state; a controller reconciles the cluster to match Git. In GitOps, update manifests in Git and let the controller sync them, rather than making untracked manual changes.
+
+### Apply a manifest directory directly
+```bash
+kubectl apply -f <DIRECTORY>/
+kubectl get deployments
+kubectl get pods
+kubectl scale deployment/<NAME> --replicas=3   # direct change; may be reverted by GitOps
+```
+### Git workflow for a manifest change
+```bash
+git status
+git add <MANIFEST_FILE>
+git commit -m "Update deployment replicas"
+git push
+```
+### Argo CD basic checks (if installed and CLI available)
+```bash
+argocd app list
+argocd app get <APP_NAME>
+argocd app sync <APP_NAME>
+```
+Argo CD sync command requires a configured CLI/session and appropriate access. If the lab uses a UI, inspect app health/sync status there. A manual `kubectl scale` can be reverted if the Git-declared replica count remains unchanged.
+
+---
+
+## 18. Fast troubleshooting reference
+
+| Error / symptom | Try first |
+|---|---|
+| `command not found` | `command -v <tool>`; tool may not be installed |
+| `Permission denied` | `ls -l <path>`; check owner, permissions and parent directory |
+| Git says no upstream | `git push -u origin <branch>` |
+| Git merge conflict | `git status`; edit markers; `git add`; `git commit` |
+| Docker daemon unavailable | check whether Docker service/engine is running; environment may not support Docker |
+| Container exits | `docker ps -a`; `docker logs <name>`; `docker inspect <name>` |
+| Port already allocated | choose another host port, e.g. `-p 8081:80`; inspect `ss -tuln` |
+| Kubernetes resource not found | check namespace: `kubectl get <resource> -A`; confirm name/case |
+| Kubernetes YAML rejected | check indentation, `apiVersion`, `kind`, required fields; use `kubectl apply -f file.yaml` and read error |
+| Pod not ready | `kubectl describe pod`; `kubectl logs`; check image, config, probes and resources |
+| Helm chart not found | check chart path/repo; `helm repo list`; `helm search repo <term>` |
+| Terraform provider/init error | `terraform init`, `terraform validate`; inspect provider/version and network |
+| Terraform credentials error | credentials/role not configured; don't hard-code keys |
+| HTTP 404 | wrong URL/path/route or app endpoint |
+| HTTP 502/503 | upstream app/service may be unavailable or have no healthy endpoints |
+
+---
+
+## 19. Final exam method
+
+1. **Underline the requested end state**: owner, permissions, port, replicas, service type, image, path, metric, etc.
+2. **Identify the tool**: Linux (`chmod/chown`), Git, Docker, Kubernetes (`kubectl`), Helm, Terraform, or monitoring.
+3. **Inspect before changing**: `ls -l`, `git status`, `docker ps`, `kubectl get/describe`, `helm list`, `terraform plan`.
+4. **Make the smallest required change**. Copy the matching template and replace all sample names/values.
+5. **Apply/run it**: `git commit`, `docker build/run`, `kubectl apply`, `helm upgrade`, or `terraform apply` as appropriate.
+6. **Verify**: `ls -l`, `git status`, `curl`, `docker logs`, `kubectl rollout status`, `kubectl get endpoints`, `helm status`, `terraform output`.
+7. If it fails, read the exact error and use the troubleshooting table. Do not repeatedly run commands without inspecting the cause.
+
+**High-value Kubernetes architecture facts:** `kubectl` is the CLI; API server exposes the API; `etcd` stores cluster state; scheduler assigns Pods to nodes; controller manager runs controllers; kubelet ensures Pods run on a node; kube-proxy (in many clusters) implements Service network rules; CoreDNS provides cluster DNS.
