@@ -1,0 +1,6 @@
+playwright
+keyboard
+python-dotenv
+openai
+google-genai
+pydantic

@@ -1,0 +1,6 @@
+2026/10/22-15:28:34.134 bee0 Reusing MANIFEST D:\Docker\res\chrome_agent_profile\Profile 1\Local Storage\leveldb/MANIFEST-000001
+2026/10/22-15:28:34.140 bee0 Recovering log #3
+2026/10/22-15:28:34.141 bee0 Reusing old log D:\Docker\res\chrome_agent_profile\Profile 1\Local Storage\leveldb/000003.log 
+2026/10/22-15:29:34.166 bee0 Level-0 table #5: started
+2026/10/22-15:29:34.169 bee0 Level-0 table #5: 39949 bytes OK
+2026/10/22-15:29:34.171 bee0 Delete type=0 #3

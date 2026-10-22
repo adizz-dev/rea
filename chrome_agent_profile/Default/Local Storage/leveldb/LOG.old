@@ -1,0 +1,6 @@
+2026/10/22-13:22:15.840 7cf4 Reusing MANIFEST D:\Docker\res\chrome_agent_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/10/22-13:22:15.840 7cf4 Recovering log #10
+2026/10/22-13:22:15.842 7cf4 Reusing old log D:\Docker\res\chrome_agent_profile\Default\Local Storage\leveldb/000010.log 
+2026/10/22-13:23:53.718 a450 Level-0 table #14: started
+2026/10/22-13:23:53.723 a450 Level-0 table #14: 62390 bytes OK
+2026/10/22-13:23:53.724 a450 Delete type=0 #10

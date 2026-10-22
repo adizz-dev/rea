@@ -1,0 +1,17 @@
+2026/10/22-11:37:49.664 a128 Creating DB D:\Docker\res\chrome_agent_profile\Default\IndexedDB\https_www.youtube.com_0.indexeddb.leveldb since it was missing.
+2026/10/22-11:37:49.665 a128 Reusing MANIFEST D:\Docker\res\chrome_agent_profile\Default\IndexedDB\https_www.youtube.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/10/22-11:37:53.196 a128 Level-0 table #5: started
+2026/10/22-11:37:53.199 a128 Level-0 table #5: 122675 bytes OK
+2026/10/22-11:37:53.200 a128 Delete type=0 #3
+2026/10/22-11:37:53.200 375c Manual compaction at level-0 from '\x00\x02\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x03\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/22-11:37:53.221 375c Level-0 table #7: started
+2026/10/22-11:37:53.222 375c Level-0 table #7: 956 bytes OK
+2026/10/22-11:37:53.223 375c Delete type=0 #4
+2026/10/22-11:37:53.223 375c Manual compaction at level-0 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)
+2026/10/22-11:37:53.223 375c Manual compaction at level-1 from '\x00\x04\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at '\x00\x04\x02\x1f\x03\x00\x10\xeb\x90#\x16zB\x00\x03\x00\x00\x00\x00\x00\x00\xf0?' @ 1297 : 0
+2026/10/22-11:37:53.223 375c Compacting 1@1 + 1@2 files
+2026/10/22-11:37:53.224 375c Generated table #8@1: 246 keys, 21927 bytes
+2026/10/22-11:37:53.224 375c Compacted 1@1 + 1@2 files => 21927 bytes
+2026/10/22-11:37:53.224 375c compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/10/22-11:37:53.225 375c Delete type=2 #7
+2026/10/22-11:37:53.225 375c Manual compaction at level-1 from '\x00\x04\x02\x1f\x03\x00\x10\xeb\x90#\x16zB\x00\x03\x00\x00\x00\x00\x00\x00\xf0?' @ 1297 : 0 .. '\x00\x05\x00\x00\x00' @ 0 : 0; will stop at (end)

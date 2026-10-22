@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scaler++</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+
+  <body>
+    <div class="popup-container">
+      <!-- Header -->
+      <header class="header">
+        <div class="header-content">
+          <div class="logo">
+            <img src="icons/icon48.png" alt="Scaler Cleaner" class="logo-img" />
+            <h1>Scaler++</h1>
+          </div>
+          <span class="version" id="extension-version">v1.5</span>
+        </div>
+      </header>
+
+      <!-- Main Content -->
+      <main class="content">
+        <!-- Appearance Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2>🎨 Appearance</h2>
+            <span class="section-badge accent">Theme</span>
+          </div>
+
+          <div class="toggle-list">
+            <div class="toggle-item highlight theme-row">
+              <div class="toggle-info">
+                <span class="toggle-title">🌗 Dark Mode &amp; Themes</span>
+                <span class="toggle-desc">
+                  Recolor the whole Scaler site. Pick a mood — applies instantly.
+                </span>
+              </div>
+              <select id="theme-select" class="theme-select">
+                <option value="off">🌞 Light (Off)</option>
+                <option value="dark">🌚 Dark</option>
+                <option value="midnight">🌌 Midnight</option>
+                <option value="dracula">🧛 Dracula</option>
+                <option value="nord">🏔️ Nord</option>
+                <option value="sepia">📜 Warm Sepia</option>
+                <option value="solarized">🌗 Solarized</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- Enhancements Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2>✨ Enhancements</h2>
+            <span class="section-badge accent">Added Features</span>
+          </div>
+
+          <div class="toggle-list">
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🛡️ Companion Mode Bypass</span>
+                <span class="toggle-desc">
+                  Bypass companion-mode while Joining classes
+                </span>
+              </div>
+
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-companion-bypass" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <!-- Calendar Sync toggle -->
+            <div
+              class="toggle-item highlight"
+              style="align-items: flex-start; cursor: default"
+            >
+              <div class="toggle-info" style="gap: 10px">
+                <label
+                  for="toggle-calendar-sync"
+                  style="
+                    cursor: pointer;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                  "
+                >
+                  <span class="toggle-title">📅 Calendar Sync</span>
+                  <span class="toggle-desc">
+                    Auto-add classes to Google Calendar every 24 hours
+                  </span>
+                </label>
+
+                <div id="calendar-sync-options" style="display: none">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <button id="syncCalendarBtn" class="sync-btn">
+                      Sync Now
+                    </button>
+                    <span id="syncStatus" class="sync-status"></span>
+                  </div>
+                </div>
+              </div>
+
+              <label
+                class="toggle-switch"
+                for="toggle-calendar-sync"
+                style="margin-top: 4px; cursor: pointer"
+              >
+                <input type="checkbox" id="toggle-calendar-sync" checked />
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🔍 Spotlight Search</span>
+                <span class="toggle-desc">
+                  Apple Spotlight style search for classes, problems and events
+                  (Alt + / or click Search in the header)
+                </span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-spotlight-search" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">⌨️ Vim Mode</span>
+                <span class="toggle-desc"
+                  >Modal Vim keybindings in the coding editor (assignment and
+                  homework problems)</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-vim-mode" />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🔴 Live Stream Recorder</span>
+                <span class="toggle-desc"
+                  >Enable recording and DVR for live classes with rewind support</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-live-stream-recorder" />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">⬇️ Video Downloader</span>
+                <span class="toggle-desc"
+                  >Download class recordings as audio or video from the
+                  recordings page</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-video-downloader" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🔗 LeetCode Link</span>
+                <span class="toggle-desc"
+                  >Show LeetCode link next to assignment problems</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-leetcode-link" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">📘 Lecture Info</span>
+                <span class="toggle-desc">Show lecture metadata on session pages</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-lecture-info" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight" hidden style="display:none"> <!-- DISABLED: classroom tag paused -->
+              <div class="toggle-info">
+                <span class="toggle-title">🚪 Classroom Tag</span>
+                <span class="toggle-desc">Crowdsourced room on class cards — vote where the class is</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-classroom-tag" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🧑‍🏫 Instructor Info</span>
+                <span class="toggle-desc">Show instructor name/company on dashboard & session</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-instructor-info" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🧠 Lecture Summary</span>
+                <span class="toggle-desc">AI summary tab on session pages (uses your own API key)</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-lecture-summary" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🎯 Practice Mode</span>
+                <span class="toggle-desc">Auto-reset code in assignments</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-practice-mode" />
+                <span class="slider"></span>
+              </div>
+            </label>
+            <!-- Practice Mode Expiry Setting -->
+            <div
+              id="practice-mode-options"
+              class="sub-options"
+              style="display: none"
+            >
+              <div class="sub-option-row">
+                <span class="sub-option-label">Auto-disable after (days):</span>
+                <input
+                  type="number"
+                  id="practice-mode-days"
+                  class="days-input"
+                  min="1"
+                  max="30"
+                  value="7"
+                />
+              </div>
+            </div>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">📚 Subject Sort</span>
+                <span class="toggle-desc"
+                  >Segregate subjects into Core and Other based on naming</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-subject-sort" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🎲 Problem Picker</span>
+                <span class="toggle-desc"
+                  >Pick a random unsolved problem from the dashboard</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-problem-picker" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🚀 Join Session Button</span>
+                <span class="toggle-desc"
+                  >Show "Join Session" on live class cards in the
+                  dashboard</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-join-session" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🏆 Contest Leaderboard</span>
+                <span class="toggle-desc"
+                  >Always show leaderboard link on contest pages, even during
+                  live contests</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input
+                  type="checkbox"
+                  id="toggle-contest-leaderboard"
+                  checked
+                />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🔍 Problem Search Bar</span>
+                <span class="toggle-desc"
+                  >Search problems by name, topic, type, or day (Press / to
+                  focus)</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-problem-search" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+          </div>
+        </section>
+        <!-- Global Section (Header Elements) -->
+        <section class="section">
+          <div class="section-header">
+            <h2>🌍 Global</h2>
+            <span class="section-badge">All Pages</span>
+          </div>
+
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Refer & Earn Button</span>
+                <span class="toggle-desc"
+                  >₹ icon button in header next to logo</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-refer-earn" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Scaler Coins</span>
+                <span class="toggle-desc"
+                  >Coin counter linking to /store in header</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-scaler-coins" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">📚 Core Curriculum</span>
+                <span class="toggle-desc"
+                  >Quick access icon next to logo in header</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-core-curriculum" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Notebook Widget</span>
+                <span class="toggle-desc"
+                  >Floating notebook button (bottom-right corner)</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-notebook-widget" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">🚫 Referral Popup</span>
+                <span class="toggle-desc"
+                  >Large referral modal with coins & rewards</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-referral-popup" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">⚡ Auto-Close Modals</span>
+                <span class="toggle-desc"
+                  >Auto-dismiss referral popups when they appear</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-auto-close-modals" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- Assignment page -->
+        <section class="section">
+          <div class="section-header">
+            <h2>🎯 Assignment</h2>
+            <span class="section-badge">Assignment Page</span>
+          </div>
+
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Companion</span>
+                <span class="toggle-desc">Companion widget</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-companion" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item highlight">
+              <div class="toggle-info">
+                <span class="toggle-title">📥 Export Assignment</span>
+                <span class="toggle-desc">Download questions and code as ZIP</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-assignment-export" />
+                <span class="slider"></span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- Todos Page Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2>📋 Dashboard</h2>
+            <span class="section-badge">Todos Page</span>
+          </div>
+
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Year Revisited Card</span>
+                <span class="toggle-desc"
+                  >"Check out your year at SST" sidebar card</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-2025-revisited" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Referral Stats Box</span>
+                <span class="toggle-desc">referral counter in sidebar</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-referral-stats" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Attendance Card</span>
+                <span class="toggle-desc"
+                  >Progressed performance circle/bar</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-attendance" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Mess Fee Card</span>
+                <span class="toggle-desc"
+                  >Fee info & food preference card (auto-shows while the
+                  form is open)</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-mess-fee" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Continue Watching</span>
+                <span class="toggle-desc"
+                  >Past recordings carousel (DBSCAN, Anomaly Detection...)</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-continue-watching" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Referral Banner</span>
+                <span class="toggle-desc"
+                  >Large "Continue your Referral Rewards" banner</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-referral-banner" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- Sidebar Section -->
+        <section class="section">
+          <div class="section-header">
+            <h2>📂 Sidebar</h2>
+            <span class="section-badge">Navigation</span>
+          </div>
+
+          <div class="toggle-list">
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">SST Goodies Link</span>
+                <span class="toggle-desc"
+                  >Store link with money icon in sidebar nav</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-sst-goodies" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Refer Friends Link</span>
+                <span class="toggle-desc"
+                  >"Refer Friends to SST" with NEW badge in sidebar</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" id="toggle-refer-friends" checked />
+                <span class="slider"></span>
+              </div>
+            </label>
+
+            <label class="toggle-item">
+              <div class="toggle-info">
+                <span class="toggle-title">Refer Promo Card</span>
+                <span class="toggle-desc"
+                  >"Come, let's grow together" card with Start Referring</span
+                >
+              </div>
+              <div class="toggle-switch">
+                <input
+                  type="checkbox"
+                  id="toggle-sidebar-refer-banner"
+                  checked
+                />
+                <span class="slider"></span>
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <!-- Developer Info & Review Card -->
+        <div class="developer-card">
+          <div class="dev-card-body">
+            <p class="dev-text">Created by <strong>Ritesh Prajapati</strong></p>
+            <p class="dev-subtext">Would love your review on the Chrome Web Store!</p>
+          </div>
+          <div class="dev-actions">
+            <a href="#" id="dev-contact-link" class="dev-link contact-btn">Contact</a>
+            <a href="#" id="dev-rate-link" class="dev-link">Rate Extension</a>
+          </div>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <button id="reset-btn" class="btn btn-secondary">Reset</button>
+        <button id="rate-btn" class="btn btn-secondary">Rate</button>
+        <button id="feedback-btn" class="btn btn-secondary">Feedback</button>
+        <button id="github-btn" class="btn btn-secondary">
+          <img src="icons/github-logo.webp" alt="logo" /> Github
+        </button>
+      </footer>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

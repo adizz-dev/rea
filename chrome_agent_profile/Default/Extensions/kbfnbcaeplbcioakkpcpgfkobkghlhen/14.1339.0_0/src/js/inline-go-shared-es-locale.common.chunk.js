@@ -1,0 +1,1 @@
+(self.webpackChunk=self.webpackChunk||[]).push([[89499],{57815:(e,n,o)=>{o.r(n),o.d(n,{default:()=>r});const r={"InlineGoShared.cursorCue.openGo":"Abrir Go"}}}]);

@@ -1,0 +1,39 @@
+2026/10/22-13:26:13.546 c308 Reusing MANIFEST D:\Docker\res\chrome_agent_profile\Default\Local Storage\leveldb/MANIFEST-000001
+2026/10/22-13:26:13.546 c308 Recovering log #13
+2026/10/22-13:26:13.547 c308 Reusing old log D:\Docker\res\chrome_agent_profile\Default\Local Storage\leveldb/000013.log 
+2026/10/22-13:27:13.565 c308 Level-0 table #17: started
+2026/10/22-13:27:13.569 c308 Level-0 table #17: 67125 bytes OK
+2026/10/22-13:27:13.571 c308 Delete type=0 #13
+2026/10/22-13:30:34.811 9e58 Level-0 table #19: started
+2026/10/22-13:30:34.816 9e58 Level-0 table #19: 47198 bytes OK
+2026/10/22-13:30:34.817 9e58 Delete type=0 #16
+2026/10/22-13:30:34.818 9e58 Compacting 4@0 + 1@1 files
+2026/10/22-13:30:34.823 9e58 Generated table #20@0: 367 keys, 33718 bytes
+2026/10/22-13:30:34.823 9e58 Compacted 4@0 + 1@1 files => 33718 bytes
+2026/10/22-13:30:34.824 9e58 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/22-13:30:34.825 9e58 Delete type=2 #8
+2026/10/22-13:30:34.825 9e58 Delete type=2 #11
+2026/10/22-13:30:34.825 9e58 Delete type=2 #14
+2026/10/22-13:30:34.825 9e58 Delete type=2 #17
+2026/10/22-13:30:34.825 9e58 Delete type=2 #19
+2026/10/22-13:30:52.794 9e58 Level-0 table #22: started
+2026/10/22-13:30:52.799 9e58 Level-0 table #22: 58968 bytes OK
+2026/10/22-13:30:52.800 9e58 Delete type=0 #18
+2026/10/22-13:46:28.282 9e58 Level-0 table #24: started
+2026/10/22-13:46:28.286 9e58 Level-0 table #24: 46340 bytes OK
+2026/10/22-13:46:28.288 9e58 Delete type=0 #21
+2026/10/22-14:04:16.368 9e58 Level-0 table #26: started
+2026/10/22-14:04:16.375 9e58 Level-0 table #26: 44825 bytes OK
+2026/10/22-14:04:16.376 9e58 Delete type=0 #23
+2026/10/22-14:26:17.290 9e58 Level-0 table #28: started
+2026/10/22-14:26:17.294 9e58 Level-0 table #28: 39382 bytes OK
+2026/10/22-14:26:17.296 9e58 Delete type=0 #25
+2026/10/22-14:26:17.296 9e58 Compacting 4@0 + 1@1 files
+2026/10/22-14:26:17.300 9e58 Generated table #29@0: 479 keys, 35094 bytes
+2026/10/22-14:26:17.300 9e58 Compacted 4@0 + 1@1 files => 35094 bytes
+2026/10/22-14:26:17.301 9e58 compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/10/22-14:26:17.301 9e58 Delete type=2 #20
+2026/10/22-14:26:17.301 9e58 Delete type=2 #22
+2026/10/22-14:26:17.301 9e58 Delete type=2 #24
+2026/10/22-14:26:17.301 9e58 Delete type=2 #26
+2026/10/22-14:26:17.301 9e58 Delete type=2 #28

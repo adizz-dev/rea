@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scaler++ Stream Downloader</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          "Inter",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background-color: #0f1117;
+        color: #e4e4e7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+      .container {
+        background: linear-gradient(145deg, #1c1d27, #23242f);
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow:
+          0 20px 60px rgba(0, 0, 0, 0.5),
+          0 0 0 1px rgba(255, 255, 255, 0.05);
+        width: 100%;
+        max-width: 520px;
+        text-align: center;
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 4px;
+      }
+      .logo span {
+        color: #3484f0;
+      }
+      .subtitle {
+        color: #71717a;
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+      .video-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #d4d4d8;
+        margin-bottom: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        display: none; /* shown by JS only when title exists */
+      }
+      .mode-badge {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 24px;
+      }
+      .mode-audio {
+        background: rgba(139, 92, 246, 0.15);
+        color: #a78bfa;
+        border: 1px solid rgba(139, 92, 246, 0.3);
+      }
+      .mode-video {
+        background: rgba(52, 132, 240, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(52, 132, 240, 0.3);
+      }
+
+      #status-text {
+        color: #a1a1aa;
+        margin-bottom: 24px;
+        font-size: 14px;
+        min-height: 20px;
+      }
+
+      .progress-container {
+        width: 100%;
+        background: #27272a;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 12px;
+        height: 12px;
+      }
+      .progress-bar {
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(90deg, #3484f0, #6366f1);
+        border-radius: 8px;
+        transition: width 0.25s ease;
+      }
+      .stats {
+        font-size: 13px;
+        color: #71717a;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      button {
+        background: linear-gradient(135deg, #3484f0, #6366f1);
+        color: #fff;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-size: 15px;
+        cursor: pointer;
+        font-weight: 700;
+        width: 100%;
+        transition: all 0.2s ease;
+        letter-spacing: 0.3px;
+      }
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(52, 132, 240, 0.35);
+      }
+      button:active {
+        transform: translateY(0);
+      }
+      button:disabled {
+        background: #27272a;
+        cursor: not-allowed;
+        color: #52525b;
+        box-shadow: none;
+        transform: none;
+      }
+
+      .logs {
+        margin-top: 24px;
+        background: #18181b;
+        padding: 14px;
+        border-radius: 10px;
+        color: #71717a;
+        font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+        font-size: 11px;
+        height: 140px;
+        overflow-y: auto;
+        text-align: left;
+        border: 1px solid #27272a;
+        line-height: 1.6;
+      }
+      .logs::-webkit-scrollbar {
+        width: 4px;
+      }
+      .logs::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .logs::-webkit-scrollbar-thumb {
+        background: #3f3f46;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="logo">Scaler<span>++</span></div>
+      <div class="subtitle">Secure Stream Downloader</div>
+
+      <div id="video-title" class="video-title"></div>
+
+      <div id="mode-badge" class="mode-badge mode-video">VIDEO</div>
+
+
+      <p id="status-text">Ready to download.</p>
+
+      <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <div class="stats">
+        <span id="progress-chunks">0 / 0 chunks</span>
+        <span id="progress-percent">0%</span>
+      </div>
+
+      <button id="start-btn">Start Download</button>
+
+      <div class="logs" id="logs">[System] Waiting for user to start...</div>
+    </div>
+
+    <script src="tsAudioExtractor.js"></script>
+    <script src="modeBadge.js"></script>
+    <script src="videoProcessor.js"></script>
+  </body>
+</html>

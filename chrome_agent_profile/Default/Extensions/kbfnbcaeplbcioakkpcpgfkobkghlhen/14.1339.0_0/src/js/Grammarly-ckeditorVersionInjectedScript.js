@@ -1,0 +1,1 @@
+!function(){try{self.CKEDITOR_VERSION&&document.documentElement.setAttribute("data-grammarly-ckeditor-version",self.CKEDITOR_VERSION)}catch(t){}}();

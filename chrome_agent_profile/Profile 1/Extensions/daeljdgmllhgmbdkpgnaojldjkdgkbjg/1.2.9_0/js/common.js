@@ -1,0 +1,1 @@
+document.addEventListener("DOMContentLoaded",(()=>{})),chrome.runtime.onMessage.addListener(((e,t)=>("userPrompt"===e.type&&window.alert("This site's content is protected by copyright. Are you sure? You want to continue"),!0)));

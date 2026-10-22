@@ -1,0 +1,69 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "static/monicaLogo.png",
+         "16": "static/monicaLogo.png",
+         "32": "static/monicaLogo.png",
+         "48": "static/monicaLogo.png"
+      },
+      "default_popup": "monicaPopup.html"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "commands": {
+      "_execute_action": {
+         "suggested_key": {
+            "default": "Ctrl+M",
+            "mac": "Command+M"
+         }
+      },
+      "run-monica-on-new-tab": {
+         "description": "Open Chat Tab"
+      }
+   },
+   "content_scripts": [ {
+      "js": [ "content.js" ],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_end"
+   } ],
+   "default_locale": "en",
+   "description": "__MSG_description__",
+   "externally_connectable": {
+      "matches": [ "https://monica.im/*", "https://powerup.monica.im/*", "https://monica.butterfly-effect.dev/*" ]
+   },
+   "host_permissions": [ "\u003Call_urls>" ],
+   "icons": {
+      "128": "static/monicaLogo.png",
+      "16": "static/monicaLogo.png",
+      "32": "static/monicaLogo.png",
+      "48": "static/monicaLogo.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjxmSWBNBUR+4suRSplh5ghzstYHIVE/T8bP3i8v6gz+8gX+c73tt0ws22l1blg+i6C/ToCHZdfX6sVsVP5FT1tWJBLbokEly+P5SAyn1VBhsStI1giW7fYGro7qQsGtN+Az9q3hJZtZq+PEb7qPO2/BeWQds/WvmUXDyW1sLXjkSeLV4dileEFt2dc/ZSUGgWkpg7Ivqk3aJ2RpIER3iMrWkwsyOD1SpjnNVb878RkZKbqB1yxyRvkB7Ai6UF970dm3t/mIbhGSOhmrqqe8QTn8yLug0dh8rUBL8oHI5EfLPsJ7N3+6C1bnv6P0dluRo+oImb7Mwzi2yR6BjmoyTjQIDAQAB",
+   "manifest_version": 3,
+   "name": "__MSG_name__",
+   "optional_permissions": [ "tabs", "tabGroups", "activeTab" ],
+   "options_ui": {
+      "open_in_tab": true,
+      "page": "monicaOptions.html"
+   },
+   "permissions": [ "storage", "scripting", "sidePanel", "contextMenus" ],
+   "side_panel": {
+      "default_path": "sidePanel.html"
+   },
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "9.0.23",
+   "web_accessible_resources": [ {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "content.css" ]
+   }, {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "content.js" ]
+   }, {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "static/*" ]
+   }, {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "chatTab.html" ]
+   } ]
+}

@@ -1,0 +1,35 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "icons/icon128.png",
+         "16": "icons/icon16.png",
+         "48": "icons/icon48.png"
+      },
+      "default_popup": "src/popup/popup.html"
+   },
+   "background": {
+      "service_worker": "src/background/service-worker.js"
+   },
+   "content_scripts": [ {
+      "js": [ "src/scraper/selectors.js", "src/scraper/extractor.js", "src/scraper/normalizer.js", "src/content/content.js" ],
+      "matches": [ "https://www.coursera.org/degrees/bachelor-of-science-computer-science-bits/*" ],
+      "run_at": "document_idle"
+   } ],
+   "description": "Automatically sync your academic scores to your institution's records.",
+   "host_permissions": [ "https://www.coursera.org/degrees/bachelor-of-science-computer-science-bits/*" ],
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7BIOZb/zeenyfnVtw5uQPyqsdIrhKeu5xZw96MKZdoCSO1T2VgKAUwrawNMX7VSn0YcFcqg3ZM5+kqlnBeyVsPpjaEtuCwhbPd6XsQ0FkcEOQJZ99eUnBEE0cr/u2MhUidHknfqzY9jm9CBvTDi/NQxHxG+zhYFG7EZNtFchWZq3lX0NZyPkpmdx10VpK5uzQBc3Pjn6oW7APAXDiXYnQ7+EzpltiVErFE/pZwxZOhqdk2R7vKbGn0wksj3q/112wY1TSrXVjcjcsTCp/EFpJTh+jvZ1BGrT47HbHPD+qt3w2S/iNOLh9zRzrq8Qa5FpgvzogjirwEjDyz3xuux/yQIDAQAB",
+   "manifest_version": 3,
+   "name": "Score Flow",
+   "oauth2": {
+      "client_id": "786896952980-u6n98kjgh3s3rve6i1pts9n9c2b9bjq7.apps.googleusercontent.com",
+      "scopes": [ "openid", "email", "profile" ]
+   },
+   "permissions": [ "identity", "storage", "activeTab" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "2.5.2"
+}

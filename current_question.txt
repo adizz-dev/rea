@@ -1,0 +1,171 @@
+Test Summary
+Total Questions:
+-
+56
+Q 1
+Unattempted questions
+-
+8
+Q 1
+Attempted questions
+-
+1
+Q 1
+Answered Successfully
+-
+33
+Questions which are Attempted and Marked for Review will be considered for evaluation
+Section 1:
+Section A — Single-Correct MCQs (10 marks)
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+Section 2:
+Section B — Multiple-Correct MCQs (20 Marks)
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+Section 3:
+Section C — Descriptive Questions (20 Marks)
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+Section 4:
+Section D — Coding (Attempt Only 1 Question/ 3 Options - 20 Marks)
+Q 1
+Q 2
+Q 3
+Section 5:
+Section E — Case Study (15 Marks)
+Q 1
+Section 6:
+Section F — Numerical and Problem-Solving (15 Marks)
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Section 7:
+Kaggle Assignment Understanding Check - Attempt any 2 out of 3 Questions (each question has sub parts) (Total - 20 marks)
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+Q 11
+Q 12
+Q 13
+Q 14
+Q 15
+Computer Vision End Term - 2028 Batch (A+B)
+34 / 56Attempted
+ALL
+S1
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+S2
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+S3
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+S4
+Q 1
+Q 2
+Q 3
+S5
+Q 1
+S6
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+S7
+Q 1
+Q 2
+Q 3
+Q 4
+Q 5
+Q 6
+Q 7
+Q 8
+Q 9
+Q 10
+Q 11
+Q 12
+Q 13
+Q 14
+Q 15
+This test is running in Practice Mode. No score will be awarded for submissions in this mode.
+Question
+1. Convolution Output Size
+Save for later
+
+A 3 x 3 convolution is applied to a 32 x 32 image with stride 1 and no padding. What is the output size?
+
+Answer Type: Select ONE correct option.
+
+Select any ONE
+31 x 31
+30 x 30
+29 x 29
+32 x 32
+Click here to check your answer
+PREVIOUS
+NEXT
+Save and Next

@@ -1,0 +1,1 @@
+(self.webpackChunk=self.webpackChunk||[]).push([[94953],{38395:(e,t,a)=>{a.r(t),a.d(t,{NewToneDetectedPopup:()=>s});var p=a(92860),r=a(24098),n=a(66450);const s=()=>p.createElement("div",{className:n.wrapper,"data-grammarly-part":"newToneDetectedPopup"},(0,r.t)("gButton.newToneDetected.message"))},66450:e=>{e.exports={wrapper:"BFyE2"}}}]);

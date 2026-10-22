@@ -1,0 +1,1 @@
+(self.webpackChunk=self.webpackChunk||[]).push([[76362],{23207:(e,a,n)=>{n.r(a),n.d(a,{SquareSpace:()=>r});var r,u=n(9435),c=n(58513),d=n(29169);!function(e){e.page=(0,u.Hw)({name:"SquareSpace",domain:c.dL,forceIntegrationEntirelyInsideIframe:!0},d.M.defaultFieldRuleSet)}(r||(r={}))}}]);

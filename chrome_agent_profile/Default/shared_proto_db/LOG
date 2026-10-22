@@ -1,0 +1,9 @@
+2026/10/22-13:26:13.652 8c70 Reusing MANIFEST D:\Docker\res\chrome_agent_profile\Default\shared_proto_db/MANIFEST-000001
+2026/10/22-13:26:13.652 8c70 Recovering log #6
+2026/10/22-13:26:13.653 8c70 Reusing old log D:\Docker\res\chrome_agent_profile\Default\shared_proto_db/000006.log 
+2026/10/22-13:29:48.635 7128 Level-0 table #10: started
+2026/10/22-13:29:48.637 7128 Level-0 table #10: 147989 bytes OK
+2026/10/22-13:29:48.637 7128 Delete type=0 #6
+2026/10/22-13:29:48.645 7128 Level-0 table #12: started
+2026/10/22-13:29:48.646 7128 Level-0 table #12: 148872 bytes OK
+2026/10/22-13:29:48.646 7128 Delete type=0 #9

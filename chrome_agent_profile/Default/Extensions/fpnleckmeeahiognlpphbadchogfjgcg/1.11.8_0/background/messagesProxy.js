@@ -1,0 +1,275 @@
+// ============================================================
+// messagesProxy.js — Proxy for fetching messages from backend
+// Bypasses content script CORS restrictions by making the
+// fetch request from the background service worker context.
+// ============================================================
+
+// Base URL for the backend API (toggle for dev / prod)
+const BACKEND_BASE_URL = "https://scalerbackend.vercel.app";
+// const BACKEND_BASE_URL = "http://localhost:3001";
+
+// Shared bearer token for the transcript/transcribe endpoints.
+const EXTENSION_TOKEN =
+  "Ritesh-Prajapati-created-started-this-extension-super-secret-key-12345";
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // ── Fetch custom messages ────────────────────────────────
+  if (message.action === "fetchCustomMessages") {
+    // The email lets the backend filter audience-targeted messages
+    // (batch / email domain / specific user). Omitted -> broadcast only.
+    const query = message.email
+      ? `?email=${encodeURIComponent(message.email)}`
+      : "";
+
+    fetch(`${BACKEND_BASE_URL}/api/messages/active${query}`)
+      .then((res) => res.json())
+      .then((data) => {
+        sendResponse(data);
+      })
+      .catch((error) => {
+        console.error("Scaler++: Error fetching from backend", error);
+        sendResponse({ success: false, error: error.toString() });
+      });
+
+    // Return true to indicate we wish to send a response asynchronously
+    return true;
+  }
+
+  // ── Sync user profile to backend ─────────────────────────
+  if (message.action === "syncUserProfile") {
+    fetch(`${BACKEND_BASE_URL}/api/messages/sync-user`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(message.user),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        sendResponse({ success: true, data });
+      })
+      .catch((error) => {
+        // Shh... fail silently as per user request
+        sendResponse({ success: false, error: error.toString() });
+      });
+
+    return true;
+  }
+
+  // ── Track download usage (video / audio / transcript) ────────
+  // Fire-and-forget — increments the counter in Supabase.
+  if (message.action === "trackDownload") {
+    fetch(`${BACKEND_BASE_URL}/api/users/download`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: message.email,
+        type: message.downloadType,
+        lecture: message.lecture,
+        lectureSlug: message.lectureSlug || "",
+        // Transcript-only attribution. The backend ignores these on
+        // video/audio rows, so sending undefined is harmless.
+        provider: message.provider || "",
+        model: message.model || "",
+        source: message.source || "",
+      }),
+    }).catch(() => {
+      /* fail silently */
+    });
+
+    // No return true — fire-and-forget
+  }
+
+  // ── Track one-time message CTA clicks ─────────────────────
+  // The content script reports only the first interaction per injected banner.
+  if (message.action === "trackMessageClick") {
+    fetch(
+      `${BACKEND_BASE_URL}/api/messages/${encodeURIComponent(message.messageId || "")}/click`,
+      { method: "POST" },
+    ).catch(() => {
+      /* analytics must never interrupt the user's click */
+    });
+  }
+
+  // ── Proxy button click to backend ────────────────────────
+  // Content scripts can't make cross-origin requests to our
+  // backend, so we relay them through the service worker.
+  // message shape:
+  //   { action: "proxyButtonClick", endpoint: "/api/messages/button-click",
+  //     method: "POST", body: { ... } }
+  if (message.action === "proxyButtonClick") {
+    const url = `${BACKEND_BASE_URL}${message.endpoint}`;
+    const method = (message.method || "POST").toUpperCase();
+
+    const fetchOptions = {
+      method,
+      headers: { "Content-Type": "application/json" },
+    };
+
+    // Only attach a body for methods that support one
+    if (method !== "GET" && method !== "HEAD" && message.body) {
+      fetchOptions.body = JSON.stringify(message.body);
+    }
+
+    fetch(url, fetchOptions)
+      .then((res) => res.json())
+      .then((data) => {
+        sendResponse({ success: true, data });
+      })
+      .catch((error) => {
+        console.error("Scaler++: Error proxying button click", error);
+        sendResponse({ success: false, error: error.toString() });
+      });
+
+    return true;
+  }
+
+  // ── Check transcript cache ───────────────────────────────────
+  if (message.action === "checkTranscriptCache") {
+    fetch(`${BACKEND_BASE_URL}/api/transcript?slug=${encodeURIComponent(message.slug)}`, {
+      method: "GET",
+      headers: { Authorization: "Bearer Ritesh-Prajapati-created-started-this-extension-super-secret-key-12345" },
+    })
+      .then((res) => res.ok ? res.json() : { cached: false })
+      .then((data) => {
+        sendResponse({ success: true, data });
+      })
+      .catch((error) => {
+        console.error("Scaler++: Error checking transcript cache", error);
+        sendResponse({ success: false, error: error.toString() });
+      });
+      
+    return true;
+  }
+
+  // ── Transcript versions ─────────────────────────────────────
+  // Every transcription of a lecture is kept as its own version. These three
+  // handlers back the versions page: list (metadata only — transcripts are
+  // routinely 50 KB+, so text never rides along), fetch one version's text,
+  // and record a deliberate download.
+  if (message.action === "getTranscriptVersions") {
+    const query = new URLSearchParams({ slug: message.slug || "" });
+    if (message.email) query.set("email", message.email);
+
+    fetch(`${BACKEND_BASE_URL}/api/transcript/versions?${query.toString()}`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${EXTENSION_TOKEN}` },
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data) => sendResponse({ success: true, data }))
+      .catch((error) => {
+        console.warn("Scaler++: Error listing transcript versions:", error.message);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true;
+  }
+
+  if (message.action === "getTranscriptVersion") {
+    fetch(
+      `${BACKEND_BASE_URL}/api/transcript/version/${encodeURIComponent(message.versionId || "")}`,
+      {
+        method: "GET",
+        headers: { Authorization: `Bearer ${EXTENSION_TOKEN}` },
+      },
+    )
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data) => sendResponse({ success: true, data }))
+      .catch((error) => {
+        console.warn("Scaler++: Error fetching transcript version:", error.message);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true;
+  }
+
+  if (message.action === "recordVersionDownload") {
+    fetch(
+      `${BACKEND_BASE_URL}/api/transcript/version/${encodeURIComponent(message.versionId || "")}/download`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${EXTENSION_TOKEN}` },
+      },
+    )
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data) => sendResponse({ success: true, data }))
+      .catch((error) => {
+        console.warn("Scaler++: Error recording version download:", error.message);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true;
+  }
+
+  if (message.action === "voteTranscriptVersion") {
+    fetch(
+      `${BACKEND_BASE_URL}/api/transcript/version/${encodeURIComponent(message.versionId || "")}/vote`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${EXTENSION_TOKEN}`,
+        },
+        // vote is "up", "down", or null to withdraw — null must survive the
+        // round trip, so it is sent explicitly rather than defaulted away.
+        body: JSON.stringify({
+          email: message.email || "",
+          vote: message.vote === "up" || message.vote === "down" ? message.vote : null,
+        }),
+      },
+    )
+      .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
+      .then((data) => sendResponse({ success: true, data }))
+      .catch((error) => {
+        console.warn("Scaler++: Error voting on transcript version:", error.message);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true;
+  }
+
+  // ── Save transcript to backend cache ────────────────────────
+  // Handled here in the service worker so the save completes even
+  // if the transcriptProcessor tab is closed right after the download
+  // triggers (fire-and-forget from a page context would be aborted).
+  //
+  // The reply below is not decoration: an MV3 service worker only stays alive
+  // while a message port is open, so returning without sendResponse let Chrome
+  // suspend the worker mid-POST and silently drop whole transcripts. Every
+  // other backend write here (saveSummary, voteTranscriptVersion) already
+  // holds the port the same way.
+  if (message.action === "saveTranscriptToCache") {
+    fetch(`${BACKEND_BASE_URL}/api/transcript/save`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer Ritesh-Prajapati-created-started-this-extension-super-secret-key-12345",
+      },
+      body: JSON.stringify({
+        slug: (message.slug || "").trim(),
+        title: (message.title || message.slug || "").trim(),
+        text: (message.text || "").trim(),
+        classId: (message.classId || "").toString().trim(),
+        generatedBy: message.generatedBy || "",
+        provider: message.provider || "",
+        model: message.model || "",
+        // The processor page downloads the file the moment it finishes, so
+        // that save also counts as a download of the new version.
+        countDownload: message.countDownload === true,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          console.warn("Scaler++: Backend rejected transcript save:", res.status);
+          sendResponse({ success: false, error: `HTTP ${res.status}` });
+          return;
+        }
+        console.log("Scaler++: Transcript saved to cache for key:", message.slug);
+        sendResponse({ success: true });
+      })
+      .catch((error) => {
+        console.warn("Scaler++: Failed to save transcript to cache:", error.message);
+        sendResponse({ success: false, error: error.message });
+      });
+
+    return true;
+  }
+});

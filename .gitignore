@@ -1,0 +1,4 @@
+.env
+playwright_profile/
+.venv/
+__pycache__/

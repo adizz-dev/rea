@@ -1,0 +1,17 @@
+{
+   "chrome_url_overrides": {
+      "newtab": "new-tab-kanban.dd87a602.html"
+   },
+   "description": "Turn your new tab into a kanban board that helps you focus. The only extension with multiple boards and sync across computers.",
+   "icons": {
+      "128": "apple-touch-icon.25a1ca44.png",
+      "16": "favicon-16x16.11e1fcbd.png",
+      "48": "apple-touch-icon.25a1ca44.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlTwxEOkapDMawe7sC2+orGbZ3GVUBMjRjoysQLuPGWwvdXKphUM+Lc+dlJsA7VUsYHvoTyF3pFfDC631tIy7NtIUDlgVXIQRgknQDlzW3WOTI6VXmk5qBzyeMQWRI/os8x/A6DbdFJXYrLuhGHc1D3LOfmXH/P6n20W9s6f2LlxQMFzGYyf1yB18ZRTWkUlUVAMCpQwu2W9RvMyUsae7WogZzFpZbky3JezFMSwxWXf9r2d5bBZrs4F+Ae/CiDqcNFbTUbGTbltJnv77of4RCtWNm4jpJfUFawY/NBTagW0wjz2KgTXQbgLLIjHzRta/Aq77KrA1A2ppM/ZrPcL/VQIDAQAB",
+   "manifest_version": 3,
+   "name": "Personal Kanban - Work Beautifully in your New Tab",
+   "permissions": [ "storage" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "2.0.9"
+}

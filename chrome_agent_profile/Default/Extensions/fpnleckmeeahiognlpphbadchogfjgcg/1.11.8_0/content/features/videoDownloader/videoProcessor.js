@@ -1,0 +1,517 @@
+// ============================================================
+// videoProcessor.js
+// Concurrent HLS stream downloader with audio extraction
+// ============================================================
+
+const logsElem = document.getElementById("logs");
+const statusText = document.getElementById("status-text");
+const progressBar = document.getElementById("progress-bar");
+const chunksText = document.getElementById("progress-chunks");
+const percentText = document.getElementById("progress-percent");
+const startBtn = document.getElementById("start-btn");
+
+const CONCURRENCY = 6; // Number of parallel chunk fetches
+
+function log(msg) {
+  const p = document.createElement("div");
+  p.innerText = `> ${msg}`;
+  logsElem.appendChild(p);
+  logsElem.scrollTop = logsElem.scrollHeight;
+}
+
+// ── Get params from URL ──
+const urlParams = new URLSearchParams(window.location.search);
+const m3u8Url = urlParams.get("url");
+const downloadType = urlParams.get("type") || "video";
+const videoTitle = urlParams.get("title") || "";
+const lectureSlug = urlParams.get("lectureSlug") || "";
+const sourceTabId = parseInt(urlParams.get("sourceTabId"), 10);
+
+// The lectureSlug is the unique identifier for cache lookups.
+// It comes from Scaler's classroom meta API (data.attributes.slug)
+// and is unique per lecture even across batches that share the same class title.
+const cacheKey = lectureSlug || videoTitle;
+
+// ── Show video title if available ──
+const titleElem = document.getElementById("video-title");
+if (titleElem && videoTitle) {
+  titleElem.textContent = videoTitle;
+  titleElem.style.display = "block";
+}
+
+if (!m3u8Url) {
+  log("Error: No M3U8 URL provided.");
+  statusText.innerText = "Error: Invalid Stream Data";
+  startBtn.disabled = true;
+} else {
+  log(`Mode: ${downloadType.toUpperCase()}`);
+  log(`Stream: ${m3u8Url.substring(0, 60)}...`);
+  if (downloadType === "audio") {
+    log("Audio extraction enabled — will strip video tracks from chunks.");
+  }
+}
+
+// ── Fire-and-forget download tracking (called only after success) ──
+
+function trackCompletedDownload(type) {
+  try {
+    chrome.storage.sync.get(["scaler_user"], (result) => {
+      const email = result?.scaler_user?.email;
+      if (email && chrome.runtime?.id) {
+        chrome.runtime.sendMessage({
+          action: "trackDownload",
+          email,
+          downloadType: type,
+          lecture: videoTitle || "",
+          lectureSlug: cacheKey,
+        });
+      }
+    });
+  } catch (_) {
+    /* fail silently — tracking should never break downloads */
+  }
+}
+
+// ── Helpers ──
+
+async function fetchText(url) {
+  if (sourceTabId && !isNaN(sourceTabId)) {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.sendMessage(
+        sourceTabId,
+        { action: "FETCH_PROXY", url, type: "text" },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            console.error("Proxy error:", chrome.runtime.lastError);
+            // Fallback to normal fetch if proxy fails
+            fetch(url).then(res => res.text()).then(resolve).catch(reject);
+          } else if (response && response.success) {
+            resolve(response.data);
+          } else {
+            reject(new Error(response?.error || "Proxy fetch failed"));
+          }
+        }
+      );
+    });
+  }
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} fetching ${url}`);
+  return await res.text();
+}
+
+function resolveUrl(base, relative) {
+  try {
+    return new URL(relative, base).href;
+  } catch (e) {
+    return relative;
+  }
+}
+
+// ── M3U8 Parsing ──
+
+function getMediaPlaylistUrl(masterText, baseUrl) {
+  const lines = masterText.split("\n").map((l) => l.trim());
+
+  if (!lines[0].startsWith("#EXTM3U")) {
+    throw new Error("Invalid M3U8 format");
+  }
+
+  // If it already has segments → it IS the media playlist
+  if (lines.some((l) => l.startsWith("#EXTINF"))) {
+    return baseUrl;
+  }
+
+  // ── Master playlist: find best stream ──
+
+  // For AUDIO or TRANSCRIPT: try to find a dedicated audio-only rendition first
+  if (downloadType === "audio" || downloadType === "transcript") {
+    for (const line of lines) {
+      if (line.startsWith("#EXT-X-MEDIA") && line.includes("TYPE=AUDIO")) {
+        const match = line.match(/URI="([^"]+)"/);
+        if (match && match[1]) {
+          log("Found dedicated audio rendition in master playlist.");
+          return resolveUrl(baseUrl, match[1]);
+        }
+      }
+    }
+    log("No separate audio rendition found — will demux from video chunks.");
+  }
+
+  // Find highest bandwidth video stream
+  let bestBandwidth = 0;
+  let bestUrl = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith("#EXT-X-STREAM-INF")) {
+      const bwMatch = lines[i].match(/BANDWIDTH=(\d+)/);
+      if (bwMatch) {
+        const bw = parseInt(bwMatch[1], 10);
+        if (bw > bestBandwidth) {
+          bestBandwidth = bw;
+          for (let j = i + 1; j < lines.length; j++) {
+            if (lines[j] && !lines[j].startsWith("#")) {
+              bestUrl = lines[j];
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (!bestUrl) {
+    const fallback = lines.find((l) => l && !l.startsWith("#"));
+    if (fallback) return resolveUrl(baseUrl, fallback);
+    throw new Error("No media streams found in master playlist.");
+  }
+
+  return resolveUrl(baseUrl, bestUrl);
+}
+
+function extractSegments(mediaText, baseUrl) {
+  const lines = mediaText.split("\n").map((l) => l.trim());
+  const segments = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    if (lines[i].startsWith("#EXTINF")) {
+      for (let j = i + 1; j < lines.length; j++) {
+        if (lines[j] && !lines[j].startsWith("#")) {
+          segments.push(resolveUrl(baseUrl, lines[j]));
+          break;
+        }
+      }
+    }
+  }
+  return segments;
+}
+
+// ── Fetch a single chunk with retries ──
+
+async function fetchChunk(url, index) {
+  const MAX_RETRIES = 3;
+  for (let retry = 0; retry < MAX_RETRIES; retry++) {
+    try {
+      if (sourceTabId && !isNaN(sourceTabId)) {
+        const response = await new Promise((resolve, reject) => {
+          chrome.tabs.sendMessage(
+            sourceTabId,
+            { action: "FETCH_PROXY", url, type: "binary" },
+            (resp) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              } else if (resp && resp.success) {
+                resolve(resp.data);
+              } else {
+                reject(new Error(resp?.error || "Proxy fetch failed"));
+              }
+            }
+          );
+        });
+        
+        // Reconstitute ArrayBuffer from number array
+        const uint8 = new Uint8Array(response);
+        return uint8.buffer;
+      } else {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.arrayBuffer();
+      }
+    } catch (e) {
+      if (retry < MAX_RETRIES - 1) {
+        await new Promise((r) => setTimeout(r, 1000 * (retry + 1)));
+      }
+    }
+  }
+  log(`⚠ Chunk ${index + 1} failed after ${MAX_RETRIES} retries. Skipping.`);
+  return null;
+}
+
+// ── Concurrent Download Engine ──
+//
+// Uses a worker-pool pattern: N workers each grab the next available chunk,
+// fetch it, optionally extract audio, and submit it to the ordered write queue.
+// Chunks are written to disk sequentially even though they download in parallel.
+
+async function downloadConcurrently(segments, writable, audioExtractor) {
+  const total = segments.length;
+  let nextToFetch = 0; // shared index for workers to claim chunks
+  let nextToWrite = 0; // sequential write pointer
+  const buffer = new Map(); // stores out-of-order completed chunks
+
+  // Write queue ensures sequential, non-overlapping writes
+  let writeChain = Promise.resolve();
+
+  function updateUI(written) {
+    const pct = ((written / total) * 100).toFixed(1);
+    progressBar.style.width = pct + "%";
+    chunksText.innerText = `${written} / ${total} chunks`;
+    percentText.innerText = `${pct}%`;
+  }
+
+  function flushToFile() {
+    writeChain = writeChain.then(async () => {
+      while (buffer.has(nextToWrite)) {
+        const data = buffer.get(nextToWrite);
+        buffer.delete(nextToWrite);
+        if (data && data.byteLength > 0) {
+          await writable.write(data);
+        }
+        nextToWrite++;
+        updateUI(nextToWrite);
+
+        // Log progress milestones
+        if (nextToWrite % 50 === 0) {
+          log(`Progress: ${nextToWrite}/${total} chunks written to disk.`);
+        }
+      }
+    });
+    return writeChain;
+  }
+
+  // Each worker grabs the next unchlaimed chunk, downloads + processes it,
+  // then triggers the sequential flush
+  async function worker(workerId) {
+    while (true) {
+      const idx = nextToFetch++;
+      if (idx >= total) break;
+
+      const raw = await fetchChunk(segments[idx], idx);
+
+      let processed;
+      if (raw === null) {
+        processed = new Uint8Array(0); // skip failed chunks
+      } else if (audioExtractor) {
+        // Extract only audio bytes from the .ts chunk
+        processed = audioExtractor.extract(raw);
+      } else {
+        processed = new Uint8Array(raw);
+      }
+
+      buffer.set(idx, processed);
+      flushToFile(); // don't await — let it queue up
+    }
+  }
+
+  // Launch N parallel workers
+  log(`Launching ${CONCURRENCY} parallel download workers...`);
+  const workers = [];
+  for (let i = 0; i < CONCURRENCY; i++) {
+    workers.push(worker(i));
+  }
+  await Promise.all(workers);
+
+  // Final flush for any remaining buffered chunks
+  await flushToFile();
+  await writeChain;
+
+  log(`All ${total} chunks processed.`);
+}
+
+// ── Concurrent Download to Memory (for transcript mode) ──
+
+async function downloadToMemory(segments, audioExtractor) {
+  const total = segments.length;
+  let nextToFetch = 0;
+  let nextToWrite = 0;
+  const buffer = new Map();
+  const audioChunks = [];
+  const typeLabel = downloadType.charAt(0).toUpperCase() + downloadType.slice(1);
+
+  function updateUI(written) {
+    const pct = ((written / total) * 100).toFixed(1);
+    progressBar.style.width = pct + "%";
+    chunksText.innerText = `${written} / ${total} chunks`;
+    percentText.innerText = `${pct}%`;
+  }
+
+  function flush() {
+    while (buffer.has(nextToWrite)) {
+      const data = buffer.get(nextToWrite);
+      buffer.delete(nextToWrite);
+      if (data && data.byteLength > 0) {
+        audioChunks.push(data);
+      }
+      nextToWrite++;
+      updateUI(nextToWrite);
+      if (nextToWrite % 50 === 0) {
+        log(`${typeLabel} download: ${nextToWrite}/${total} chunks.`);
+      }
+    }
+  }
+
+  async function worker() {
+    while (true) {
+      const idx = nextToFetch++;
+      if (idx >= total) break;
+      const raw = await fetchChunk(segments[idx], idx);
+      let processed;
+      if (raw === null) {
+        processed = new Uint8Array(0);
+      } else if (audioExtractor) {
+        processed = audioExtractor.extract(raw);
+      } else {
+        processed = new Uint8Array(raw);
+      }
+      buffer.set(idx, processed);
+      flush();
+    }
+  }
+
+  log(`Downloading ${downloadType} (${CONCURRENCY}x parallel)...`);
+  const workers = [];
+  for (let i = 0; i < CONCURRENCY; i++) {
+    workers.push(worker());
+  }
+  await Promise.all(workers);
+  flush();
+
+  // Concatenate all chunks into a single ArrayBuffer
+  let totalBytes = 0;
+  for (const chunk of audioChunks) totalBytes += chunk.byteLength;
+  const combined = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of audioChunks) {
+    combined.set(
+      chunk instanceof Uint8Array ? chunk : new Uint8Array(chunk),
+      offset,
+    );
+    offset += chunk.byteLength;
+  }
+
+  log(`${typeLabel} downloaded: ${(totalBytes / 1024 / 1024).toFixed(1)} MB`);
+  return combined.buffer;
+}
+
+// ── Main Download Flow ──
+
+// Derive a clean filename from the video title, falling back to 'Scaler_Lecture'
+function getSuggestedName(ext) {
+  if (videoTitle) {
+    const slug = videoTitle
+      .replace(/[\\/:*?"<>|]/g, "") // strip illegal filename chars
+      .replace(/\s+/g, "_") // spaces → underscores
+      .substring(0, 80) // cap length
+      .replace(/_+$/, ""); // trim trailing underscores
+    if (slug) return `${slug}.${ext}`;
+  }
+  return `Scaler_Lecture.${ext}`;
+}
+
+startBtn.addEventListener("click", async () => {
+  const ext = downloadType === "audio" ? "mp3" : "mp4";
+  const mimeType = downloadType === "audio" ? "audio/mpeg" : "video/mp4";
+
+  // The File System Access API lets us stream chunks straight to disk, keeping
+  // RAM flat (~5-10 MB) regardless of video length. It needs transient user
+  // activation, so we MUST request the file handle here — synchronously inside
+  // the click handler, before any network await burns the activation window.
+  // Brave (explicitly) and Firefox (no API) fall back to memory buffering.
+  const supportsFilePicker =
+    typeof window.showSaveFilePicker === "function" && !navigator.brave;
+
+  let writable = null;
+  if (supportsFilePicker) {
+    try {
+      const fileHandle = await window.showSaveFilePicker({
+        suggestedName: getSuggestedName(ext),
+        types: [
+          {
+            description: downloadType === "audio" ? "Audio File" : "Video File",
+            accept:
+              downloadType === "audio"
+                ? { "audio/mpeg": [".mp3"] }
+                : { "video/mp4": [".mp4"] },
+          },
+        ],
+      });
+      writable = await fileHandle.createWritable();
+    } catch (err) {
+      if (err.name === "AbortError") {
+        log("File selection cancelled.");
+        return;
+      }
+      // Any other error (e.g. Brave blocking) → fall back to memory buffering.
+      log("Save picker unavailable — switching to in-memory download...");
+      writable = null;
+    }
+  }
+
+  try {
+    startBtn.disabled = true;
+    statusText.innerText = "Analyzing stream...";
+    const startTime = Date.now();
+
+    // 1. Fetch and parse master M3U8
+    log("Fetching stream manifest...");
+    const masterText = await fetchText(m3u8Url);
+
+    const mediaPlaylistUrl = getMediaPlaylistUrl(masterText, m3u8Url);
+    log("Media playlist: " + mediaPlaylistUrl.substring(0, 60) + "...");
+
+    // 2. Fetch media playlist and extract segment URLs
+    const mediaText = await fetchText(mediaPlaylistUrl);
+    const segments = extractSegments(mediaText, mediaPlaylistUrl);
+
+    if (segments.length === 0) {
+      throw new Error("0 segments found. Streaming format not supported.");
+    }
+
+    log(`Found ${segments.length} chunks to download.`);
+
+    let audioExtractor = null;
+    if (downloadType === "audio") {
+      audioExtractor = new TSAudioExtractor();
+      log("Audio extractor initialized — stripping video from each chunk.");
+    }
+
+    statusText.innerText = `Downloading ${downloadType} (${CONCURRENCY}x parallel)...`;
+
+    if (writable) {
+      // ── STREAMING PATH (Chrome / Edge) ──
+      // Each chunk is written to disk as it arrives. RAM stays flat.
+      log("Streaming chunks directly to disk — RAM usage stays minimal.");
+      try {
+        await downloadConcurrently(segments, writable, audioExtractor);
+        await writable.close();
+      } catch (err) {
+        // Don't leave a half-written file dangling on disk.
+        try {
+          await writable.abort();
+        } catch (_) {
+          /* ignore */
+        }
+        throw err;
+      }
+    } else {
+      // ── FALLBACK PATH (Brave / Firefox) ──
+      // Buffer in memory, then save via blob URL. Higher RAM use — only used
+      // where the File System Access API is unavailable.
+      log("Downloading to memory — save will start after download completes.");
+      const memBuffer = await downloadToMemory(segments, audioExtractor);
+      const blob = new Blob([memBuffer], { type: mimeType });
+
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = getSuggestedName(ext);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+    }
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    log(`✅ Download finished in ${elapsed}s! Check your Downloads folder.`);
+    statusText.innerText = `🎉 Download Complete! (${elapsed}s)`;
+    progressBar.style.background = "#28a745";
+
+    // ── Track completed download ──────────────────────────────
+    trackCompletedDownload(downloadType);
+  } catch (err) {
+    log(`❌ Error: ${err.message}`);
+    console.error(err);
+    statusText.innerText = "Download Failed!";
+    startBtn.disabled = false;
+  }
+});

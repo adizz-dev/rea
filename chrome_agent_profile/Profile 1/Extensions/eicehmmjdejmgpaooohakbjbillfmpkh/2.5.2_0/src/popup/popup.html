@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Score Flow — Sync your Coursera academic scores automatically." />
+    <title>Score Flow</title>
+    <link rel="stylesheet" href="popup.css" />
+</head>
+
+<body>
+
+    <div class="popup-container">
+
+        <!-- ── Header ───────────────────────────────────────────────────── -->
+        <header class="popup-header">
+            <div class="header-icon" aria-hidden="true">
+                <img src="../../icons/icon48.png" alt="">
+            </div>
+            <div class="header-text">
+                <div class="extension-info">
+                    <h1 class="header-title">Score Flow</h1>
+                    <p class="header-subtitle">Synchronize your academic scores</p>
+                </div>
+                <div class="data-sync-info">
+                    <a href="https://score-flow-dashboard.vercel.app" target="_blank" rel="noopener noreferrer" title="View your stored data">
+                        <div class="data-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-database" viewBox="0 0 16 16">
+                                <path d="M4.318 2.687C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4c0-.374.356-.875 1.318-1.313M13 5.698V7c0 .374-.356.875-1.318 1.313C10.766 8.729 9.464 9 8 9s-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777A5 5 0 0 0 13 5.698M14 4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13zm-1 4.698V10c0 .374-.356.875-1.318 1.313C10.766 11.729 9.464 12 8 12s-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777A5 5 0 0 0 13 8.698m0 3V13c0 .374-.356.875-1.318 1.313C10.766 14.729 9.464 15 8 15s-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13s3.022-.289 4.096-.777c.324-.147.633-.323.904-.525" />
+                            </svg>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- ── View: Logged Out ──────────────────────────────────────────── -->
+        <section id="view-logged-out" class="view" aria-label="Sign in" hidden>
+            <div class="warning-chip">
+                <div class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle" viewBox="0 0 16 16">
+                        <path d="M7.938 2.016A.13.13 0 0 1 8.002 2a.13.13 0 0 1 .063.016.15.15 0 0 1 .054.057l6.857 11.667c.036.06.035.124.002.183a.2.2 0 0 1-.054.06.1.1 0 0 1-.066.017H1.146a.1.1 0 0 1-.066-.017.2.2 0 0 1-.054-.06.18.18 0 0 1 .002-.183L7.884 2.073a.15.15 0 0 1 .054-.057m1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767z" />
+                        <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0M7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0z" />
+                    </svg>
+                </div>
+                <span>Restricted Access</span>
+            </div>
+
+            <p class="tagline">Your account must be pre-approved by your mentor. Please sign in using your authorized Google account to start syncing your data.</p>
+
+            <div class="consent-wrapper">
+                <!-- Age Confirmation Checkbox -->
+                <label class="consent-label" for="ageCheckbox">
+                    <input type="checkbox" id="ageCheckbox">
+                    <span>I confirm that I am 18 years of age or older.</span>
+                </label>
+
+                <!-- Consent Checkbox -->
+                <label class="consent-label" for="consentCheckbox">
+                    <input type="checkbox" id="consentCheckbox">
+                    <span>I consent to securely share my academic progress and profile data with my assigned TA/Mentor for educational support purposes.</span>
+                </label>
+
+                <!-- Privacy Policy Checkbox -->
+                <label class="consent-label" for="privacyCheckbox">
+                    <input type="checkbox" id="privacyCheckbox">
+                    <span>I have read and agree to the <a href="https://docs.google.com/document/d/e/2PACX-1vS1hPj_A2lRpnFNZxvYm0LuxA--u7zWBjQ4FbUfiBhJaIF96-BdVdw-hXZpcPFjwZou8UHy7ANOztYL/pub" class="privacy-link-inline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>.</span>
+                </label>
+            </div>
+
+            <button id="btn-login" class="btn-google" type="button" aria-label="Sign in with Google" disabled>
+                <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                </svg>
+                <span>Sign in with Google</span>
+            </button>
+
+            <div class="error-message" id="login-error-message" hidden>
+                <span class="error-icon" aria-hidden="true">⚠</span>
+                <span id="login-error-text"></span>
+            </div>
+        </section>
+
+        <!-- ── View: Logged In ───────────────────────────────────────────── -->
+        <section id="view-logged-in" class="view" aria-label="Dashboard" hidden>
+
+            <!-- student-card -->
+            <div class="student-card">
+                <div class="student-avatar" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                    </svg>
+                </div>
+                <div class="student-info">
+                    <span class="student-name" id="student-name"></span>
+                    <span class="student-email" id="student-email"></span>
+                </div>
+                <button id="btn-logout" class="btn-logout" type="button" aria-label="Log out">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z" />
+                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="sync-info">
+                <div class="sync-row">
+                    <span class="sync-label">Last synced</span>
+                    <span class="sync-value" id="last-sync-time">Never</span>
+                </div>
+            </div>
+
+            <button id="btn-sync" class="btn-sync" type="button" aria-label="Sync scores">
+                <span class="btn-icon" aria-hidden="true" id="sync-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat" viewBox="0 0 16 16">
+                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41m-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9" />
+                        <path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5 5 0 0 0 8 3M3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9z" />
+                    </svg>
+                </span>
+                <span id="sync-btn-text">Sync Scores</span>
+            </button>
+
+            <div class="status-bar" id="status-bar" aria-live="polite">
+                <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+                <span class="status-text" id="status-text">Up to date</span>
+            </div>
+
+            <div class="error-message" id="error-message" hidden>
+                <span class="error-icon" aria-hidden="true">⚠</span>
+                <span id="error-text"></span>
+            </div>
+
+            <div class="notice-bar" id="notice-bar" hidden>
+                <span id="notice-text"></span>
+            </div>
+
+        </section>
+
+        <!-- ── View: Loading ─────────────────────────────────────────────── -->
+        <section id="view-loading" class="view" aria-label="Loading" aria-busy="true">
+            <div class="loader" aria-hidden="true"></div>
+            <p class="loading-text">Loading…</p>
+        </section>
+
+        <!-- Footer -->
+        <footer class="popup-footer">
+            <span id="footer-text"></span>
+            <a href="https://docs.google.com/document/d/e/2PACX-1vS1hPj_A2lRpnFNZxvYm0LuxA--u7zWBjQ4FbUfiBhJaIF96-BdVdw-hXZpcPFjwZou8UHy7ANOztYL/pub" class="privacy-link-inline" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+        </footer>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>
